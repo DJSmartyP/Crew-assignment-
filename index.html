@@ -1,63 +1,30 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<meta name="theme-color" content="#071426" />
-<title>Bridge Command Crew Allocator</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071426">
+<title>UFN Bridge Command Crew Allocator</title>
 <style>
-:root{
-  --navy:#071426;--navy2:#0b213f;--panel:#0f294b;--panel2:#0a1d36;--gold:#e5bc59;
-  --text:#f4f7fb;--muted:#aebdd1;--line:#29496f;--green:#55d59c;--blue:#79adff;
-  --amber:#f0bc66;--red:#ff8589;--purple:#b49cff;
-}
-*{box-sizing:border-box}
-html{color-scheme:dark}
-body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(180deg,#071426,#06101d);color:var(--text);min-height:100vh}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.app{max-width:1450px;margin:auto;padding:16px}
-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:16px}
-h1{font-size:clamp(25px,4vw,42px);line-height:1;margin:0;color:var(--gold);letter-spacing:.025em}
-header p{margin:7px 0 0;color:var(--muted)}
-.status-pill{border:1px solid var(--line);background:#091c34;border-radius:999px;padding:8px 12px;color:#dce7f6;font-size:13px;font-weight:800;white-space:nowrap}
-.layout{display:grid;grid-template-columns:minmax(300px,430px) minmax(0,1fr);gap:16px;align-items:start}
-.panel{background:linear-gradient(180deg,rgba(15,41,75,.98),rgba(9,28,52,.98));border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
-.panel h2{margin:0 0 5px;font-size:21px}.panel h3{margin:0 0 8px;font-size:15px;color:var(--gold);letter-spacing:.05em;text-transform:uppercase}
-.sub{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.45}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label,.label{font-size:12px;font-weight:800;color:#dce6f2;letter-spacing:.02em}.field input,.field select{width:100%;min-height:44px;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:#06172a;color:var(--text);font-size:16px}
-.rank-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}
-.primary,.secondary,.danger{border-radius:9px;padding:10px 13px;min-height:42px;font-weight:850}
-.primary{background:var(--gold);border:1px solid var(--gold);color:#18243a}.secondary{background:#102d52;border:1px solid var(--line);color:var(--text)}.danger{background:#381d28;border:1px solid #743748;color:#ffd8dd}
-.dislikes{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#06172a;border:1px solid var(--line);padding:9px;border-radius:10px;max-height:220px;overflow:auto}
-.check{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:13px}.check input{width:17px;height:17px}
-.formmsg,.notice{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:10px 11px;font-size:13px;color:#dce7f5}.formmsg{margin-top:11px}.formmsg:empty{display:none}.error{border-color:#823e4a;background:#321a22;color:#ffc5ca}.ok{border-color:#2e7156;background:#102c24;color:#c2f6dd}.warn{border-color:#7b5a29;background:#2d2516;color:#ffe1aa}
-.people-list{display:grid;gap:8px}.person-card{border:1px solid var(--line);background:#071a31;border-radius:11px;padding:10px}.person-top{display:flex;gap:8px;justify-content:space-between;align-items:center}.person-name{font-weight:900}.person-meta{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4}.person-actions{display:flex;gap:6px}.tiny{min-height:34px;padding:6px 9px;font-size:12px}.scroll-people{max-height:520px;overflow:auto;padding-right:2px}.empty{color:var(--muted);font-size:13px;padding:8px 0}
-.board-top{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px}.metrics{display:flex;flex-wrap:wrap;gap:7px}.metric{border:1px solid var(--line);background:#071a31;border-radius:9px;padding:7px 9px;font-size:12px}.metric strong{font-size:15px;color:#fff}
-.ships{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ship{border:1px solid var(--line);background:#071a31;border-radius:14px;overflow:hidden}.ship-head{padding:12px 13px;background:#0d2849;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.ship-head h2{font-size:21px;margin:0;color:var(--gold)}.ship-count{font-size:12px;color:var(--muted);font-weight:800}.section-label{padding:8px 12px 6px;color:#9fb5cf;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;background:#081e38}.slot{display:grid;grid-template-columns:minmax(110px,1fr) minmax(110px,1fr) auto;align-items:center;gap:8px;padding:9px 11px;border-top:1px solid rgba(41,73,111,.58);min-height:55px}.role{font-weight:850;font-size:13px}.assigned{font-weight:750;font-size:13px;min-width:0}.assigned small{display:block;color:var(--muted);font-weight:650;margin-top:2px;white-space:normal}.vacant{color:#7186a0;font-style:italic;font-weight:650}.badges{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}.badge{display:inline-flex;padding:3px 6px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}.b1{background:rgba(85,213,156,.16);color:#89e9bd}.b2{background:rgba(121,173,255,.16);color:#a8caff}.b3{background:rgba(240,188,102,.16);color:#ffd491}.bo{background:rgba(174,189,209,.14);color:#cad4e1}.bd{background:rgba(255,133,137,.17);color:#ffafb2}.bs{background:rgba(180,156,255,.16);color:#d2c4ff}.bm{background:rgba(174,189,209,.12);color:#b9c5d5}
-.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;color:var(--muted);font-size:11px}.legend span{display:flex;align-items:center;gap:4px}
-.data-actions{display:flex;gap:7px;flex-wrap:wrap}.file{display:none}
-.footer{color:var(--muted);font-size:11px;text-align:center;padding:6px 0 12px}
-@media(max-width:980px){.layout{grid-template-columns:1fr}.left{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.left .panel{margin-bottom:0}.scroll-people{max-height:390px}}
-@media(max-width:760px){.app{padding:10px}.left{display:block}.left .panel{margin-bottom:12px}.ships{grid-template-columns:1fr}.rank-grid{grid-template-columns:1fr}.dislikes{grid-template-columns:1fr 1fr}header{align-items:flex-start;flex-direction:column}.status-pill{white-space:normal}.scroll-people{max-height:none}}
-@media(max-width:430px){.panel{padding:12px}.dislikes{grid-template-columns:1fr}.slot{grid-template-columns:1fr auto}.assigned{grid-column:1/2}.badges{grid-column:2/3;grid-row:1/3}.role{font-size:12px}}
+:root{--navy:#071426;--panel:#0f294b;--gold:#e5bc59;--text:#f4f7fb;--muted:#aebdd1;--line:#29496f;--green:#55d59c;--blue:#79adff;--amber:#f0bc66;--red:#ff8589;--purple:#b49cff}
+*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#0c294b 0,#071426 42%,#050d18 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{width:min(1500px,100%);margin:auto;padding:clamp(10px,2vw,20px)}header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:8px 2px 18px;border-bottom:1px solid rgba(229,188,89,.25);margin-bottom:16px}h1{margin:0;color:var(--gold);font-size:clamp(26px,4.2vw,44px);line-height:.98;letter-spacing:.035em}header p{margin:7px 0 0;color:var(--muted)}.top-right{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.pill{border:1px solid var(--line);background:#081a31;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900}.pill.live{border-color:#2f7558;color:#a6f2cb}.pill.locked{border-color:#7e5530;color:#ffd397}.layout{display:grid;grid-template-columns:minmax(300px,440px) minmax(0,1fr);gap:16px;align-items:start}.panel{background:linear-gradient(180deg,rgba(15,41,75,.98),rgba(8,26,49,.98));border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}.panel h2{margin:0 0 5px;font-size:21px}.panel h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.09em;color:var(--gold)}.sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.45}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label,.label{font-size:12px;font-weight:900;color:#dce6f2}.field input,.field select{width:100%;min-height:44px;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:#06172a;color:var(--text);font-size:16px}.field input:focus,.field select:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.dislikes{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#06172a;border:1px solid var(--line);padding:9px;border-radius:10px;max-height:235px;overflow:auto}.check{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:13px}.check input{width:17px;height:17px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.btn{border-radius:9px;padding:10px 13px;min-height:42px;font-weight:900;border:1px solid var(--line)}.primary{background:var(--gold);border-color:var(--gold);color:#18243a}.secondary{background:#102d52;color:var(--text)}.danger{background:#381d28;border-color:#743748;color:#ffd8dd}.tiny{min-height:34px;padding:6px 9px;font-size:12px}.btn:disabled{opacity:.48;cursor:not-allowed}.message{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:10px 11px;font-size:13px;color:#dce7f5;margin-top:11px;line-height:1.45}.message:empty{display:none}.message.error{border-color:#823e4a;background:#321a22;color:#ffc5ca}.message.ok{border-color:#2e7156;background:#102c24;color:#c2f6dd}.message.warn{border-color:#7b5a29;background:#2d2516;color:#ffe1aa}.my-summary{border:1px solid #526d90;background:#0a213d;border-radius:11px;padding:12px;margin-bottom:12px}.my-summary strong{color:#fff}.choice-list{display:grid;gap:5px;margin:9px 0 10px;font-size:13px}.choice-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px}.choice-row span:first-child{color:var(--muted);font-weight:800}.assignment-callout{border:1px solid rgba(229,188,89,.45);background:rgba(229,188,89,.08);border-radius:9px;padding:9px 10px;margin-top:8px}.assignment-callout b{color:var(--gold)}.ships{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ship{border:1px solid var(--line);background:#071a31;border-radius:14px;overflow:hidden}.ship-head{padding:12px 13px;background:#0d2849;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.ship-head h2{font-size:22px;margin:0;color:var(--gold)}.ship-count{font-size:12px;color:var(--muted);font-weight:850}.section-label{padding:8px 12px 6px;color:#9fb5cf;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;background:#081e38}.slot{display:grid;grid-template-columns:minmax(120px,.9fr) minmax(120px,1.1fr);align-items:center;gap:8px;padding:9px 11px;border-top:1px solid rgba(41,73,111,.58);min-height:52px}.role{font-weight:900;font-size:13px}.assigned{font-weight:800;font-size:13px;min-width:0}.vacant{color:#7186a0;font-style:italic}.board-note{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:9px 11px;margin-bottom:11px;color:var(--muted);font-size:12px;line-height:1.4}.admin-only{display:none}.admin-mode .admin-only{display:block}.metrics{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}.metric{border:1px solid var(--line);background:#071a31;border-radius:9px;padding:7px 9px;font-size:12px}.metric strong{font-size:16px;color:#fff}.admin-table{display:grid;gap:8px}.admin-row{border:1px solid var(--line);background:#071a31;border-radius:11px;padding:10px}.admin-row-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.admin-name{font-weight:950}.admin-meta{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}.admin-actions{display:flex;gap:6px;flex-wrap:wrap}.footer{color:var(--muted);font-size:11px;text-align:center;padding:8px 0 16px}.hidden{display:none!important}@media(max-width:1000px){.layout{grid-template-columns:1fr}.left{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.left .panel{margin-bottom:0}.left .panel.admin-only{grid-column:1/-1}}@media(max-width:760px){.app{padding:10px}.left{display:block}.left .panel{margin-bottom:12px}.ships{grid-template-columns:1fr}.rank-grid{grid-template-columns:1fr}.dislikes{grid-template-columns:1fr 1fr}header{align-items:flex-start;flex-direction:column}.top-right{justify-content:flex-start}}@media(max-width:430px){.panel{padding:12px}.dislikes{grid-template-columns:1fr}.slot{grid-template-columns:1fr 1fr}.choice-row{grid-template-columns:82px minmax(0,1fr)}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header>
-    <div><h1>BRIDGE COMMAND CREW ALLOCATOR</h1><p>Live crew suggestion for Takanami and Havock.</p></div>
-    <div id="topStatus" class="status-pill">0 / 28 preferences entered</div>
+    <div><h1>BRIDGE COMMAND<br>CREW ALLOCATOR</h1><p>Takanami + Havock · 28 crew positions</p></div>
+    <div class="top-right"><div id="dataStatus" class="pill">Connecting…</div><div id="countStatus" class="pill">0 / 28 submitted</div></div>
   </header>
 
   <div class="layout">
-    <div class="left">
-      <section class="panel">
-        <h2 id="formTitle">Add player preferences</h2>
-        <p class="sub">Choose three different stations in order. Ship preference is considered after station preference. Mark any roles they really do not want.</p>
+    <aside class="left">
+      <section class="panel" id="playerPanel">
+        <h2>Your choices</h2>
+        <p class="sub">Choose a ship preference and up to three ranked station preferences. Select <strong>No preference / fill a gap</strong> when you are happy to be placed wherever needed. Anything marked “Really don't want” is used only as a last resort.</p>
+        <div id="mySummary" class="my-summary hidden"></div>
         <form id="playerForm">
-          <div class="field"><label for="playerName">Name</label><input id="playerName" autocomplete="name" maxlength="50" required placeholder="Player name"></div>
+          <div class="field"><label for="playerName">Name</label><input id="playerName" maxlength="50" autocomplete="name" required placeholder="Your name"></div>
           <div class="field"><label for="shipPref">Preferred ship</label><select id="shipPref"><option value="">No preference</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div>
           <div class="rank-grid">
             <div class="field"><label for="pref1">1st station</label><select id="pref1" required></select></div>
@@ -66,104 +33,241 @@ header p{margin:7px 0 0;color:var(--muted)}
           </div>
           <div class="label" style="margin:2px 0 6px">Really don't want</div>
           <div id="dislikes" class="dislikes"></div>
-          <div class="actions"><button class="primary" id="savePlayer" type="submit">Add preference</button><button class="secondary" id="cancelEdit" type="button" hidden>Cancel edit</button></div>
-          <div id="formMessage" class="formmsg" aria-live="polite"></div>
+          <div class="actions"><button id="submitBtn" class="btn primary" type="submit">Submit choices</button><button id="cancelPlayerEdit" class="btn secondary hidden" type="button">Cancel edit</button></div>
+          <div id="formMessage" class="message" aria-live="polite"></div>
         </form>
       </section>
 
-      <section class="panel">
-        <div class="board-top"><div><h2>Player entries</h2><p class="sub" style="margin-bottom:0">Edit any entry and the suggested crews recalculate immediately.</p></div></div>
-        <div id="peopleList" class="people-list scroll-people"></div>
-        <div class="data-actions" style="margin-top:12px">
-          <button class="secondary tiny" id="exportBtn" type="button">Export backup</button>
-          <button class="secondary tiny" id="importBtn" type="button">Import backup</button>
-          <input id="importFile" class="file" type="file" accept="application/json">
-          <button class="danger tiny" id="clearBtn" type="button">Clear all</button>
-        </div>
+      <section class="panel admin-only" id="adminLoginPanel">
+        <h3>Hidden admin menu</h3>
+        <h2>Admin access</h2>
+        <p class="sub">This panel only appears with <strong>?admin=1</strong>. Firebase Security Rules, not the hidden URL, protect edit/delete access.</p>
+        <form id="adminLoginForm">
+          <div class="field"><label for="adminEmail">Admin email</label><input id="adminEmail" type="email" autocomplete="username"></div>
+          <div class="field"><label for="adminPassword">Admin password</label><input id="adminPassword" type="password" autocomplete="current-password"></div>
+          <button class="btn primary" type="submit">Admin sign in</button>
+          <div id="adminLoginMessage" class="message" aria-live="polite"></div>
+        </form>
       </section>
-    </div>
+
+      <section class="panel admin-only hidden" id="adminToolsPanel">
+        <h3>Admin controls</h3>
+        <div class="actions"><button id="adminAddBtn" class="btn secondary" type="button">Add player</button><button id="lockBtn" class="btn secondary" type="button">Lock submissions</button><button id="resetBtn" class="btn danger" type="button">Reset all</button><button id="adminLogout" class="btn secondary" type="button">Sign out</button></div>
+        <div id="adminMessage" class="message" aria-live="polite"></div>
+        <div id="adminMetrics" class="metrics" style="margin-top:12px"></div>
+        <div id="adminEntries" class="admin-table"></div>
+        <form id="adminEditForm" class="hidden" style="margin-top:14px">
+          <h3 id="adminEditTitle">Edit player</h3><input id="adminEditId" type="hidden">
+          <div class="field"><label for="adminName">Name</label><input id="adminName" maxlength="50"></div>
+          <div class="field"><label for="adminShip">Preferred ship</label><select id="adminShip"><option value="">No preference</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div>
+          <div class="rank-grid"><div class="field"><label for="adminPref1">1st</label><select id="adminPref1"></select></div><div class="field"><label for="adminPref2">2nd</label><select id="adminPref2"></select></div><div class="field"><label for="adminPref3">3rd</label><select id="adminPref3"></select></div></div>
+          <div class="label" style="margin:2px 0 6px">Really don't want</div><div id="adminDislikes" class="dislikes"></div>
+          <div class="actions"><button class="btn primary" type="submit">Save entry</button><button id="adminCancelEdit" class="btn secondary" type="button">Cancel</button></div>
+        </form>
+      </section>
+    </aside>
 
     <main>
       <section class="panel">
-        <div class="board-top">
-          <div><h2>Current suggested ship loadout</h2><p id="boardNote" class="sub" style="margin-bottom:0">Add player preferences to begin filling the crews.</p></div>
-          <button class="secondary tiny" id="rerollBtn" type="button">Alternative tie-break</button>
-        </div>
-        <div id="metrics" class="metrics"></div>
+        <h2>Current suggested assignments</h2>
+        <p class="sub">This recalculates whenever a response changes. Matching station choices are split across the two ships where possible. If a true tie remains, the person who chose first gets priority.</p>
+        <div id="boardNote" class="board-note">Waiting for shared data…</div>
         <div id="ships" class="ships"></div>
-        <div class="legend">
-          <span><b class="badge b1">1st</b> first choice</span><span><b class="badge b2">2nd</b> second</span><span><b class="badge b3">3rd</b> third</span><span><b class="badge bo">Other</b> acceptable fallback</span><span><b class="badge bd">Avoid</b> really-don't-want fallback</span><span><b class="badge bs">Ship ✓</b> preferred ship</span>
-        </div>
       </section>
     </main>
   </div>
-  <div class="footer">Saved locally in this browser. No names are uploaded by this version of the tool.</div>
+  <div class="footer">UFN Bridge Command · Suggested assignments remain provisional until the GM finalises them.</div>
 </div>
-<script>
-(()=>{
-'use strict';
-const SHIPS=['Takanami','Havock'];
-const ROLES=[
-  {name:'Captain',group:'Bridge'},
-  {name:'Helm',group:'Bridge'},
-  {name:'Beams',group:'Bridge'},
-  {name:'Missiles',group:'Bridge'},
-  {name:'Nav',group:'Bridge'},
-  {name:'Radar',group:'Bridge'},
-  {name:'Dock and drone',group:'Bridge'},
-  {name:'Comms',group:'Bridge'},
-  {name:'Engineering',group:'Bridge'},
-  {name:'Manual engineer',group:'Bridge'},
-  {name:'Shuttle helm',group:'Shuttle'},
-  {name:'Shuttle generalist',group:'Shuttle'},
-  {name:'Shuttle engineer',group:'Shuttle'},
-  {name:'XO',group:'Shuttle'}
+
+<script type="module">
+import { firebaseConfig, ADMIN_UID } from "./firebase-config.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+const SHIPS = ["Takanami", "Havock"];
+const FLEX = "__FLEX__";
+const FLEX_LABEL = "No preference / fill a gap";
+const ROLES = [
+  {name:"Captain",group:"Bridge"},{name:"Helm",group:"Bridge"},{name:"Beams",group:"Bridge"},{name:"Missiles",group:"Bridge"},{name:"Nav",group:"Bridge"},{name:"Radar",group:"Bridge"},{name:"Dock and drone",group:"Bridge"},{name:"Comms",group:"Bridge"},{name:"Engineering",group:"Bridge"},{name:"Manual engineer",group:"Bridge"},
+  {name:"Shuttle helm",group:"Shuttle"},{name:"Shuttle generalist",group:"Shuttle"},{name:"Shuttle engineer",group:"Shuttle"},{name:"XO",group:"Shuttle"}
 ];
-const STORAGE='bridge-command-crew-allocator-v2';
-const $=s=>document.querySelector(s);
-const state={people:[],editing:null,jitter:0,assignment:[]};
+const ROLE_NAMES = ROLES.map(r=>r.name);
+const MAX_PLAYERS = 28;
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const adminMode = new URLSearchParams(location.search).get("admin") === "1";
+if(adminMode) document.body.classList.add("admin-mode");
 
-function esc(s){return String(s??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));}
-function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0;}
-function uid(){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);}
-function save(){try{localStorage.setItem(STORAGE,JSON.stringify({people:state.people,jitter:state.jitter}));}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem(STORAGE)||'null');if(d&&Array.isArray(d.people)){state.people=d.people.slice(0,28).map(normalisePerson);state.jitter=Number(d.jitter)||0;}}catch(e){}}
-function normalisePerson(p){return {id:String(p.id||uid()),name:String(p.name||'').trim().slice(0,50),ship:SHIPS.includes(p.ship)?p.ship:'',prefs:Array.isArray(p.prefs)?p.prefs.slice(0,3).map(String):['','',''],dislikes:Array.isArray(p.dislikes)?p.dislikes.filter(x=>ROLES.some(r=>r.name===x)).map(String):[]};}
-function roleOptions(selected){return '<option value="">Select…</option>'+ROLES.map(r=>`<option value="${esc(r.name)}" ${r.name===selected?'selected':''}>${esc(r.name)}</option>`).join('');}
-function initForm(){['#pref1','#pref2','#pref3'].forEach(sel=>$(sel).innerHTML=roleOptions(''));const box=$('#dislikes');box.innerHTML='';for(const role of ROLES){const lab=document.createElement('label');lab.className='check';lab.innerHTML=`<input type="checkbox" value="${esc(role.name)}"><span>${esc(role.name)}</span>`;box.appendChild(lab);}}
-function getFormDislikes(){return [...$('#dislikes').querySelectorAll('input:checked')].map(x=>x.value);}
-function setForm(p){$('#playerName').value=p?.name||'';$('#shipPref').value=p?.ship||'';$('#pref1').innerHTML=roleOptions(p?.prefs?.[0]||'');$('#pref2').innerHTML=roleOptions(p?.prefs?.[1]||'');$('#pref3').innerHTML=roleOptions(p?.prefs?.[2]||'');const ds=new Set(p?.dislikes||[]);$('#dislikes').querySelectorAll('input').forEach(x=>x.checked=ds.has(x.value));$('#formTitle').textContent=p?'Edit player preferences':'Add player preferences';$('#savePlayer').textContent=p?'Save changes':'Add preference';$('#cancelEdit').hidden=!p;$('#formMessage').textContent='';$('#formMessage').className='formmsg';if(p)$('#playerName').focus();}
-function clearEdit(){state.editing=null;setForm(null);}
-function validatePerson(p){if(!p.name)return 'Enter the player name.';if(state.people.some(x=>x.id!==p.id&&x.name.toLowerCase()===p.name.toLowerCase()))return 'That name has already been entered.';if(p.prefs.some(x=>!x))return 'Choose a 1st, 2nd and 3rd station.';if(new Set(p.prefs).size!==3)return 'The three station choices must be different.';const conflict=p.prefs.find(x=>p.dislikes.includes(x));if(conflict)return `${conflict} cannot be both a preference and a “really don’t want” station.`;return '';}
-function readForm(){return normalisePerson({id:state.editing||uid(),name:$('#playerName').value,ship:$('#shipPref').value,prefs:[$('#pref1').value,$('#pref2').value,$('#pref3').value],dislikes:getFormDislikes()});}
-function submitPlayer(e){e.preventDefault();const p=readForm();const err=validatePerson(p);if(err){$('#formMessage').textContent=err;$('#formMessage').className='formmsg error';return;}if(!state.editing&&state.people.length>=28){$('#formMessage').textContent='All 28 player places are already filled.';$('#formMessage').className='formmsg error';return;}const ix=state.people.findIndex(x=>x.id===p.id);if(ix>=0)state.people[ix]=p;else state.people.push(p);state.jitter=0;save();clearEdit();renderAll();$('#formMessage').textContent=ix>=0?'Preferences updated.':'Preferences added.';$('#formMessage').className='formmsg ok';}
+let app=null, auth=null, db=null, currentUser=null, players=[], locked=false, myEntry=null, currentBoard={assignments:[],metrics:{}}, unsubPlayers=null, unsubConfig=null;
 
-function renderPeople(){const box=$('#peopleList');box.innerHTML='';if(!state.people.length){box.innerHTML='<div class="empty">No player preferences entered yet.</div>';return;}state.people.forEach((p,i)=>{const card=document.createElement('div');card.className='person-card';const disliked=p.dislikes.length?` · Avoid: ${p.dislikes.join(', ')}`:'';card.innerHTML=`<div class="person-top"><div><div class="person-name">${i+1}. ${esc(p.name)}</div><div class="person-meta">${esc(p.prefs[0])} → ${esc(p.prefs[1])} → ${esc(p.prefs[2])}<br>Ship: ${esc(p.ship||'No preference')}${esc(disliked)}</div></div><div class="person-actions"><button class="secondary tiny edit" type="button">Edit</button><button class="danger tiny del" type="button">×</button></div></div>`;card.querySelector('.edit').addEventListener('click',()=>{state.editing=p.id;setForm(p);window.scrollTo({top:0,behavior:'smooth'});});card.querySelector('.del').addEventListener('click',()=>{state.people=state.people.filter(x=>x.id!==p.id);if(state.editing===p.id)clearEdit();state.jitter=0;save();renderAll();});box.appendChild(card);});}
+function configReady(){
+  return firebaseConfig && typeof firebaseConfig.apiKey === "string" && firebaseConfig.apiKey.length > 10 && !firebaseConfig.apiKey.includes("PASTE_") && typeof firebaseConfig.projectId === "string" && !firebaseConfig.projectId.includes("PASTE_");
+}
+function setMessage(el,text,type=""){el.textContent=text||"";el.className="message"+(type?" "+type:"");}
+function prefLabel(value){return value===FLEX?FLEX_LABEL:value||"—";}
+function optionHtml(){return '<option value="">Choose…</option><option value="'+FLEX+'">'+FLEX_LABEL+'</option>'+ROLE_NAMES.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("");}
+function prefIds(prefix=""){return prefix?[`#${prefix}Pref1`,`#${prefix}Pref2`,`#${prefix}Pref3`]:["#pref1","#pref2","#pref3"];}
+function syncFlexible(prefix=""){
+  const [aSel,bSel,cSel]=prefIds(prefix).map(id=>$(id));
+  if(!aSel||!bSel||!cSel)return;
+  if(aSel.value===FLEX){bSel.value=FLEX;cSel.value=FLEX;bSel.disabled=true;cSel.disabled=true;return;}
+  bSel.disabled=false;
+  if(bSel.value===FLEX){cSel.value=FLEX;cSel.disabled=true;}else cSel.disabled=false;
+}
+function setupControls(prefix=""){
+  prefIds(prefix).forEach(id=>{$(id).innerHTML=optionHtml();$(id).addEventListener("change",()=>syncFlexible(prefix));});
+  const box=$(prefix?`#${prefix}Dislikes`:"#dislikes");box.innerHTML="";
+  for(const r of ROLES){const l=document.createElement("label");l.className="check";l.innerHTML=`<input type="checkbox" value="${esc(r.name)}"> <span>${esc(r.name)}</span>`;box.appendChild(l);}
+  syncFlexible(prefix);
+}
+function checkedValues(box){return [...box.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value);}
+function setChecked(box,values){const set=new Set(values||[]);box.querySelectorAll('input[type="checkbox"]').forEach(x=>x.checked=set.has(x.value));}
+function readPlayerForm(){return {name:$("#playerName").value.trim(),ship:$("#shipPref").value,prefs:[$("#pref1").value,$("#pref2").value,$("#pref3").value],dislikes:checkedValues($("#dislikes"))};}
+function validateLocal(p,ignoreId=""){
+  if(!p.name)return "Enter your name.";
+  if(p.prefs.some(x=>!x))return "Choose a value for 1st, 2nd and 3rd station. Use No preference / fill a gap if you do not want to name a station.";
+  const flexAt=p.prefs.indexOf(FLEX);
+  if(flexAt>=0 && p.prefs.slice(flexAt).some(x=>x!==FLEX))return "Once you choose No preference / fill a gap, the lower choices must also be No preference.";
+  const concrete=p.prefs.filter(x=>x!==FLEX);
+  if(new Set(concrete).size!==concrete.length)return "Your named station choices must be different.";
+  const clash=concrete.find(x=>p.dislikes.includes(x));if(clash)return `${clash} cannot be both a preference and a Really don't want station.`;
+  if(players.some(x=>x.id!==ignoreId && x.name.trim().toLowerCase()===p.name.toLowerCase()))return "That name has already submitted. Ask the GM if it is your old entry.";
+  return "";
+}
+function clearPlayerForm(keepMessage=false){
+  const msg=$("#formMessage").textContent,cls=$("#formMessage").className;
+  $("#playerForm").reset();setChecked($("#dislikes"),[]);syncFlexible("");$("#cancelPlayerEdit").classList.add("hidden");
+  if(keepMessage){$("#formMessage").textContent=msg;$("#formMessage").className=cls;}else setMessage($("#formMessage"),"");
+  renderMySummary();applyLocked();
+}
+function populatePlayerForm(entry){
+  $("#playerName").value=entry.name;$("#shipPref").value=entry.ship||"";$("#pref1").value=entry.prefs?.[0]||"";$("#pref2").value=entry.prefs?.[1]||"";$("#pref3").value=entry.prefs?.[2]||"";setChecked($("#dislikes"),entry.dislikes||[]);syncFlexible("");$("#submitBtn").textContent="Save my changes";$("#cancelPlayerEdit").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});applyLocked();
+}
+function quality(person,role){
+  if((person.dislikes||[]).includes(role))return {kind:"avoid",rank:0,label:"Really don't want"};
+  for(let i=0;i<3;i++){
+    const pref=person.prefs?.[i];
+    if(pref===role)return {kind:"rank",rank:i+1,label:`${i+1}${i===0?"st":i===1?"nd":"rd"} choice`};
+    if(pref===FLEX)return {kind:"flex",rank:0,label:"Filled a gap"};
+  }
+  return {kind:"other",rank:0,label:"Other acceptable role"};
+}
+function renderMySummary(){
+  const box=$("#mySummary");
+  if(!myEntry||adminMode){box.classList.add("hidden");box.innerHTML="";$("#submitBtn").textContent="Submit choices";return;}
+  const assignment=currentBoard.assignments?.find(a=>a.playerId===myEntry.id);
+  const avoidText=myEntry.dislikes?.length?myEntry.dislikes.join(", "):"None";
+  const assignmentText=assignment?`<div class="assignment-callout">Current suggestion: <b>${esc(assignment.ship)} · ${esc(assignment.role)}</b><br><span class="sub" style="margin:2px 0 0">${esc(assignment.qualityLabel)}${assignment.shipPreference?` · ship ${assignment.shipMet?"preference met":"preference not met"}`:""}</span></div>`:"";
+  box.classList.remove("hidden");
+  box.innerHTML=`<strong>Your saved choices</strong><div class="choice-list"><div class="choice-row"><span>Ship</span><b>${esc(myEntry.ship||"No preference")}</b></div><div class="choice-row"><span>1st station</span><b>${esc(prefLabel(myEntry.prefs?.[0]))}</b></div><div class="choice-row"><span>2nd station</span><b>${esc(prefLabel(myEntry.prefs?.[1]))}</b></div><div class="choice-row"><span>3rd station</span><b>${esc(prefLabel(myEntry.prefs?.[2]))}</b></div><div class="choice-row"><span>Don't want</span><b>${esc(avoidText)}</b></div></div>${assignmentText}<div class="actions"><button id="editMine" class="btn secondary tiny" type="button">Edit my choices</button></div>`;
+  $("#editMine").addEventListener("click",()=>populatePlayerForm(myEntry));
+  $("#submitBtn").textContent="Save my choices";
+}
+function applyLocked(){
+  const normalPlayer=!currentUser||currentUser.isAnonymous;
+  $("#playerForm").querySelectorAll("input,select,button").forEach(x=>x.disabled=locked&&normalPlayer);
+  $("#cancelPlayerEdit").disabled=false;
+  if(!locked)syncFlexible("");
+  if(locked&&normalPlayer)setMessage($("#formMessage"),"Submissions are currently locked by the GM.","warn");
+}
 
-function slots(){const out=[];SHIPS.forEach(ship=>ROLES.forEach((r,idx)=>out.push({ship,role:r.name,group:r.group,roleIndex:idx})));return out;}
-// Hungarian algorithm: supports rows <= columns and returns a unique slot for every player.
-function hungarian(a){const n=a.length;if(!n)return[];const m=a[0].length,u=Array(n+1).fill(0),v=Array(m+1).fill(0),p=Array(m+1).fill(0),way=Array(m+1).fill(0);for(let i=1;i<=n;i++){p[0]=i;let j0=0,minv=Array(m+1).fill(Infinity),used=Array(m+1).fill(false);do{used[j0]=true;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=m;j++)if(!used[j]){const cur=a[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0}if(minv[j]<delta){delta=minv[j];j1=j}}for(let j=0;j<=m;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta}else minv[j]-=delta}j0=j1}while(p[j0]!==0);do{const j1=way[j0];p[j0]=p[j1];j0=j1}while(j0!==0);}const ans=Array(n).fill(-1);for(let j=1;j<=m;j++)if(p[j])ans[p[j]-1]=j-1;return ans;}
-// Exact priority order: maximise first choices, then seconds, then thirds, then avoid "really don't want", then satisfy ship preference.
-// Base 31 is greater than the maximum player count (28), so one improvement at a higher level outweighs every possible lower-level change.
-function assignmentCost(person,slot){const B=31;const rank=person.prefs.indexOf(slot.role);let c=0;if(rank===1)c+=B**4;else if(rank===2)c+=B**4+B**3;else if(rank<0)c+=B**4+B**3+B**2;if(person.dislikes.includes(slot.role))c+=B;if(person.ship&&person.ship!==slot.ship)c+=1;const tie=(hash(person.id+'|'+slot.ship+'|'+slot.role+'|'+state.jitter)%997)/1000000;return c+tie;}
-function compute(){const ss=slots();if(!state.people.length){state.assignment=[];return;}const matrix=state.people.map(p=>ss.map(s=>assignmentCost(p,s)));const chosen=hungarian(matrix);state.assignment=state.people.map((p,i)=>{const slot=ss[chosen[i]];const rank=p.prefs.indexOf(slot.role);return {person:p,slot,rank:rank>=0?rank+1:0,disliked:p.dislikes.includes(slot.role),shipMet:!p.ship||p.ship===slot.ship};});}
-function badgeFor(a){if(a.disliked)return '<span class="badge bd">Avoid</span>';if(a.rank===1)return '<span class="badge b1">1st</span>';if(a.rank===2)return '<span class="badge b2">2nd</span>';if(a.rank===3)return '<span class="badge b3">3rd</span>';return '<span class="badge bo">Other</span>';}
-function renderBoard(){compute();const count=state.people.length;$('#topStatus').textContent=`${count} / 28 preferences entered`;const assignedByKey=new Map(state.assignment.map(a=>[a.slot.ship+'|'+a.slot.role,a]));const first=state.assignment.filter(a=>a.rank===1).length,second=state.assignment.filter(a=>a.rank===2).length,third=state.assignment.filter(a=>a.rank===3).length,other=state.assignment.filter(a=>!a.rank&&!a.disliked).length,avoid=state.assignment.filter(a=>a.disliked).length,shipMet=state.assignment.filter(a=>a.person.ship&&a.shipMet).length,shipPrefs=state.assignment.filter(a=>a.person.ship).length;$('#metrics').innerHTML=count?`<div class="metric"><strong>${first}</strong> 1st</div><div class="metric"><strong>${second}</strong> 2nd</div><div class="metric"><strong>${third}</strong> 3rd</div><div class="metric"><strong>${other}</strong> other</div><div class="metric"><strong>${avoid}</strong> avoid</div><div class="metric"><strong>${shipMet}/${shipPrefs}</strong> ship prefs met</div>`:'';if(!count)$('#boardNote').textContent='Add player preferences to begin filling the crews.';else if(count<28)$('#boardNote').textContent=`Live provisional allocation with ${28-count} player${28-count===1?'':'s'} still to enter. Empty roles may move as new preferences arrive.`;else if(avoid)$('#boardNote').textContent=`All 28 players entered. ${avoid} assignment${avoid===1?' is':'s are'} currently using a “really don’t want” role because the overall constraints make that necessary.`;else $('#boardNote').textContent='All 28 players entered. No “really don’t want” roles are currently being used.';const shipsBox=$('#ships');shipsBox.innerHTML='';for(const ship of SHIPS){const card=document.createElement('section');card.className='ship';const shipCount=state.assignment.filter(a=>a.slot.ship===ship).length;card.innerHTML=`<div class="ship-head"><h2>${ship}</h2><div class="ship-count">${shipCount} / 14 assigned</div></div>`;for(const group of ['Bridge','Shuttle']){const groupLabel=document.createElement('div');groupLabel.className='section-label';groupLabel.textContent=group==='Bridge'?'Main ship bridge':'Ship shuttle';card.appendChild(groupLabel);ROLES.filter(r=>r.group===group).forEach(r=>{const a=assignedByKey.get(ship+'|'+r.name);const row=document.createElement('div');row.className='slot';if(!a){row.innerHTML=`<div class="role">${esc(r.name)}</div><div class="assigned vacant">Vacant</div><div></div>`;}else{const shipBadge=a.person.ship?`<span class="badge ${a.shipMet?'bs':'bm'}">${a.shipMet?'Ship ✓':'Ship ✕'}</span>`:'';const shipNote=a.person.ship?`Preferred ${a.person.ship}`:'No ship preference';row.innerHTML=`<div class="role">${esc(r.name)}</div><div class="assigned">${esc(a.person.name)}<small>${esc(shipNote)}</small></div><div class="badges">${badgeFor(a)}${shipBadge}</div>`;}card.appendChild(row);});}shipsBox.appendChild(card);}}
-function renderAll(){renderPeople();renderBoard();}
+function slots(){const out=[];for(const ship of SHIPS)for(const role of ROLES)out.push({ship,role:role.name,group:role.group});return out;}
+function hungarian(a){
+  const n=a.length;if(!n)return[];const m=a[0].length,u=Array(n+1).fill(0),v=Array(m+1).fill(0),p=Array(m+1).fill(0),way=Array(m+1).fill(0);
+  for(let i=1;i<=n;i++){p[0]=i;let j0=0;const minv=Array(m+1).fill(Infinity),used=Array(m+1).fill(false);do{used[j0]=true;const i0=p[j0];let delta=Infinity,j1=0;for(let j=1;j<=m;j++)if(!used[j]){const cur=a[i0-1][j-1]-u[i0]-v[j];if(cur<minv[j]){minv[j]=cur;way[j]=j0;}if(minv[j]<delta){delta=minv[j];j1=j;}}for(let j=0;j<=m;j++){if(used[j]){u[p[j]]+=delta;v[j]-=delta;}else minv[j]-=delta;}j0=j1;}while(p[j0]!==0);do{const j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0!==0);}
+  const ans=Array(n).fill(-1);for(let j=1;j<=m;j++)if(p[j])ans[p[j]-1]=j-1;return ans;
+}
+function timestampMs(value){if(!value)return Number.MAX_SAFE_INTEGER;if(typeof value.toMillis==="function")return value.toMillis();if(Number.isFinite(value.seconds))return value.seconds*1000+(value.nanoseconds||0)/1e6;const n=Date.parse(value);return Number.isFinite(n)?n:Number.MAX_SAFE_INTEGER;}
+function prioritySort(a,b){return timestampMs(a.priorityAt||a.createdAt)-timestampMs(b.priorityAt||b.createdAt)||String(a.id).localeCompare(String(b.id));}
+function stableTie(id,ship,role){let h=2166136261;const s=`${id}|${ship}|${role}`;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return((h>>>0)%997)*1e-9;}
+function qualityBase(q){
+  const B=31;
+  if(q.kind==="avoid")return B**6+B**4+B**3+B**2+B;
+  if(q.kind==="rank"&&q.rank===1)return 0;
+  if(q.kind==="rank"&&q.rank===2)return B**4;
+  if(q.kind==="rank"&&q.rank===3)return B**4+B**3;
+  if(q.kind==="flex")return B**4+B**3+B**2;
+  return B**4+B**3+B**2+B;
+}
+function desirability(q){if(q.kind==="rank")return 6-q.rank;if(q.kind==="flex")return 2;if(q.kind==="other")return 1;return 0;}
+function assignmentCost(person,slot){
+  const q=quality(person,slot.role),shipMet=!person.ship||person.ship===slot.ship,shipPenalty=person.ship&&!shipMet?1:0;
+  // Tiny order term only resolves otherwise equal solutions. Earlier choice time gets the better of two equivalent assignments.
+  const order=person._priorityOrder||0,tie=order*(desirability(q)*0.00001+(person.ship&&shipMet?0.000001:0))+stableTie(person.id,slot.ship,slot.role);
+  return qualityBase(q)+shipPenalty+tie;
+}
+function computeBoard(list){
+  const ordered=[...list].sort(prioritySort),eligible=ordered.slice(0,MAX_PLAYERS),orderMap=new Map(ordered.map((p,i)=>[p.id,i]));
+  const scored=eligible.map(p=>({...p,_priorityOrder:orderMap.get(p.id)||0})),ss=slots();
+  if(!scored.length)return{assignments:[],metrics:{first:0,second:0,third:0,flex:0,other:0,avoid:0,shipMet:0,shipPrefs:0},overflow:Math.max(0,list.length-MAX_PLAYERS)};
+  const matrix=scored.map(person=>ss.map(slot=>assignmentCost(person,slot))),chosen=hungarian(matrix);
+  const assignments=scored.map((person,i)=>{const slot=ss[chosen[i]],q=quality(person,slot.role);return{playerId:person.id,name:person.name,ship:slot.ship,role:slot.role,group:slot.group,qualityKind:q.kind,rank:q.rank,qualityLabel:q.label,disliked:q.kind==="avoid",shipPreference:person.ship||"",shipMet:!person.ship||person.ship===slot.ship,priorityOrder:person._priorityOrder};});
+  return{assignments,metrics:{first:assignments.filter(a=>a.rank===1).length,second:assignments.filter(a=>a.rank===2).length,third:assignments.filter(a=>a.rank===3).length,flex:assignments.filter(a=>a.qualityKind==="flex").length,other:assignments.filter(a=>a.qualityKind==="other").length,avoid:assignments.filter(a=>a.disliked).length,shipMet:assignments.filter(a=>a.shipPreference&&a.shipMet).length,shipPrefs:assignments.filter(a=>a.shipPreference).length},overflow:Math.max(0,list.length-MAX_PLAYERS)};
+}
+function renderState(){
+  currentBoard=computeBoard(players);const count=players.length,m=currentBoard.metrics;
+  $("#countStatus").textContent=`${count} / ${MAX_PLAYERS} submitted${locked?" · LOCKED":""}`;$("#countStatus").className="pill"+(locked?" locked":"");
+  if(currentBoard.overflow)$("#boardNote").textContent=`There are ${count} responses. Only the first ${MAX_PLAYERS} by tie priority can be allocated; the GM should remove the extra response${currentBoard.overflow===1?"":"s"}.`;
+  else if(!count)$("#boardNote").textContent="No choices have been submitted yet.";
+  else if(count<MAX_PLAYERS)$("#boardNote").textContent=`Provisional allocation based on ${count} response${count===1?"":"s"}. ${MAX_PLAYERS-count} player${MAX_PLAYERS-count===1?"":"s"} still to submit, so assignments may move.`;
+  else if(m.avoid)$("#boardNote").textContent=`All 28 submitted. ${m.avoid} assignment${m.avoid===1?" is":"s are"} currently using a Really don't want role as a last resort.`;
+  else $("#boardNote").textContent="All 28 submitted. No Really don't want roles are currently being used.";
+  renderShips(currentBoard.assignments);myEntry=currentUser?players.find(p=>p.id===currentUser.uid)||null:null;renderMySummary();applyLocked();if(adminMode&&currentUser&&!currentUser.isAnonymous)renderAdmin();
+}
+function renderShips(assignments){
+  const byKey=new Map(assignments.map(a=>[a.ship+"|"+a.role,a])),box=$("#ships");box.innerHTML="";
+  for(const ship of SHIPS){const card=document.createElement("section");card.className="ship";const count=assignments.filter(a=>a.ship===ship).length;card.innerHTML=`<div class="ship-head"><h2>${ship}</h2><div class="ship-count">${count} / 14 assigned</div></div>`;for(const group of ["Bridge","Shuttle"]){const lab=document.createElement("div");lab.className="section-label";lab.textContent=group==="Bridge"?"Main ship bridge":"Ship shuttle";card.appendChild(lab);for(const r of ROLES.filter(x=>x.group===group)){const a=byKey.get(ship+"|"+r.name),row=document.createElement("div");row.className="slot";row.innerHTML=a?`<div class="role">${esc(r.name)}</div><div class="assigned">${esc(a.name)}</div>`:`<div class="role">${esc(r.name)}</div><div class="assigned vacant">Vacant</div>`;card.appendChild(row);}}box.appendChild(card);}
+}
 
-function exportBackup(){const blob=new Blob([JSON.stringify({version:2,ships:SHIPS,roles:ROLES,people:state.people},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='bridge-command-preferences.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-function importBackup(e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.people))throw new Error('bad');const imported=d.people.slice(0,28).map(normalisePerson);for(const p of imported){const err=validatePerson({...p,id:p.id});if(!p.name||p.prefs.some(x=>!x)||new Set(p.prefs).size!==3)throw new Error('bad person');}state.people=imported;state.jitter=0;save();clearEdit();renderAll();$('#formMessage').textContent='Backup imported.';$('#formMessage').className='formmsg ok';}catch(err){$('#formMessage').textContent='Import failed: that file is not a valid crew preference backup.';$('#formMessage').className='formmsg error';}e.target.value='';};r.readAsText(file);}
+function choicesChanged(existing,p){return Boolean(existing)&&(existing.ship!==p.ship||JSON.stringify(existing.prefs||[])!==JSON.stringify(p.prefs||[]));}
+function playerPayload(p,ownerUid,existing=null){
+  const isNew=!existing,resetPriority=isNew||choicesChanged(existing,p);
+  return{name:p.name,ship:p.ship,prefs:p.prefs,dislikes:p.dislikes,ownerUid,createdAt:existing?.createdAt||serverTimestamp(),priorityAt:resetPriority?serverTimestamp():(existing?.priorityAt||existing?.createdAt||serverTimestamp()),updatedAt:serverTimestamp()};
+}
+async function submitPlayer(e){
+  e.preventDefault();if(!currentUser){setMessage($("#formMessage"),"Still connecting. Try again in a moment.","error");return;}if(locked&&currentUser.isAnonymous){setMessage($("#formMessage"),"Submissions are locked.","warn");return;}
+  const p=readPlayerForm(),err=validateLocal(p,currentUser.uid);if(err){setMessage($("#formMessage"),err,"error");return;}if(!myEntry&&players.length>=MAX_PLAYERS){setMessage($("#formMessage"),"All 28 places already have submissions. Ask the GM if something needs changing.","error");return;}
+  $("#submitBtn").disabled=true;try{const ref=doc(db,"players",currentUser.uid);await setDoc(ref,playerPayload(p,currentUser.uid,myEntry));setMessage($("#formMessage"),myEntry?"Your choices have been updated.":"Choices submitted successfully.","ok");clearPlayerForm(true);}catch(ex){setMessage($("#formMessage"),friendlyError(ex),"error");}finally{$("#submitBtn").disabled=false;applyLocked();}
+}
+function friendlyError(ex){const code=ex?.code||"";if(code.includes("permission-denied"))return "Firebase blocked that change. Check the security rules, or submissions may be locked.";if(code.includes("auth/invalid-credential"))return "Incorrect admin email or password.";if(code.includes("auth/too-many-requests"))return "Too many login attempts. Try again later.";return ex?.message||"Something went wrong.";}
+function startListeners(){
+  if(unsubPlayers)unsubPlayers();if(unsubConfig)unsubConfig();
+  unsubPlayers=onSnapshot(collection(db,"players"),snap=>{players=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.name&&Array.isArray(p.prefs)&&Array.isArray(p.dislikes));$("#dataStatus").textContent="Shared data live";$("#dataStatus").className="pill live";renderState();},err=>{$("#dataStatus").textContent="Data error";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(err);});
+  unsubConfig=onSnapshot(doc(db,"config","app"),snap=>{locked=snap.exists()?Boolean(snap.data().locked):false;renderState();},err=>console.error(err));
+}
+async function waitForInitialAuth(){return await new Promise(resolve=>{let unsub=()=>{};unsub=onAuthStateChanged(auth,u=>{unsub();resolve(u);});});}
+async function boot(){
+  setupControls("");setupControls("admin");renderShips([]);
+  if(!configReady()){$("#dataStatus").textContent="Setup required";$("#dataStatus").className="pill locked";$("#boardNote").textContent="Firebase has not been configured yet. Open START-HERE.md.";$("#playerForm").querySelectorAll("input,select,button").forEach(x=>x.disabled=true);return;}
+  try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);let u=await waitForInitialAuth();if(!adminMode&&u&&!u.isAnonymous){await signOut(auth);u=null;}if(!u){const cred=await signInAnonymously(auth);u=cred.user;}currentUser=u;startListeners();if(adminMode&&u&&!u.isAnonymous)showAdminTools();}catch(ex){$("#dataStatus").textContent="Connection failed";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(ex);}
+}
 
-initForm();load();renderAll();
-$('#playerForm').addEventListener('submit',submitPlayer);
-$('#cancelEdit').addEventListener('click',clearEdit);
-$('#rerollBtn').addEventListener('click',()=>{state.jitter++;save();renderBoard();});
-$('#exportBtn').addEventListener('click',exportBackup);
-$('#importBtn').addEventListener('click',()=>$('#importFile').click());
-$('#importFile').addEventListener('change',importBackup);
-$('#clearBtn').addEventListener('click',()=>{if(confirm('Clear all player preferences from this browser?')){state.people=[];state.assignment=[];state.jitter=0;save();clearEdit();renderAll();}});
-['#pref1','#pref2','#pref3'].forEach(sel=>$(sel).addEventListener('change',()=>{$('#formMessage').textContent='';$('#formMessage').className='formmsg';}));
-})();
+$("#playerForm").addEventListener("submit",submitPlayer);$("#cancelPlayerEdit").addEventListener("click",()=>clearPlayerForm());
+$("#adminLoginForm").addEventListener("submit",async e=>{
+  e.preventDefault();const email=$("#adminEmail").value.trim(),password=$("#adminPassword").value;if(!email||!password){setMessage($("#adminLoginMessage"),"Enter the admin email and password.","error");return;}
+  try{const cred=await signInWithEmailAndPassword(auth,email,password);if(ADMIN_UID&&!ADMIN_UID.includes("PASTE_")&&cred.user.uid!==ADMIN_UID){await signOut(auth);const a=await signInAnonymously(auth);currentUser=a.user;throw new Error("That account is not the configured admin account.");}currentUser=cred.user;showAdminTools();setMessage($("#adminLoginMessage"),"");renderState();}catch(ex){setMessage($("#adminLoginMessage"),friendlyError(ex),"error");}
+});
+function showAdminTools(){$("#adminLoginPanel").classList.add("hidden");$("#adminToolsPanel").classList.remove("hidden");renderAdmin();}
+$("#adminLogout").addEventListener("click",async()=>{await signOut(auth);const cred=await signInAnonymously(auth);currentUser=cred.user;$("#adminToolsPanel").classList.add("hidden");$("#adminLoginPanel").classList.remove("hidden");renderState();});
+function renderAdmin(){
+  if(!currentUser||currentUser.isAnonymous)return;const m=currentBoard.metrics||{};$("#lockBtn").textContent=locked?"Unlock submissions":"Lock submissions";
+  $("#adminMetrics").innerHTML=`<div class="metric"><strong>${m.first||0}</strong> 1st</div><div class="metric"><strong>${m.second||0}</strong> 2nd</div><div class="metric"><strong>${m.third||0}</strong> 3rd</div><div class="metric"><strong>${m.flex||0}</strong> flexible</div><div class="metric"><strong>${m.other||0}</strong> other</div><div class="metric"><strong>${m.avoid||0}</strong> avoid</div><div class="metric"><strong>${m.shipMet||0}/${m.shipPrefs||0}</strong> ship prefs</div>`;
+  const box=$("#adminEntries");box.innerHTML="";if(!players.length){box.innerHTML='<div class="sub">No entries.</div>';return;}
+  [...players].sort(prioritySort).forEach((p,i)=>{const a=currentBoard.assignments.find(x=>x.playerId===p.id),row=document.createElement("div");row.className="admin-row";row.innerHTML=`<div class="admin-row-top"><div><div class="admin-name">#${i+1} · ${esc(p.name)}</div><div class="admin-meta">Choices: ${esc((p.prefs||[]).map(prefLabel).join(" → "))}<br>Ship: ${esc(p.ship||"No preference")}${p.dislikes.length?`<br>Really don't want: ${esc(p.dislikes.join(", "))}`:""}${a?`<br>Current: ${esc(a.ship)} · ${esc(a.role)} (${esc(a.qualityLabel)})`:""}</div></div><div class="admin-actions"><button class="btn secondary tiny edit" type="button">Edit</button><button class="btn danger tiny del" type="button">Delete</button></div></div>`;row.querySelector(".edit").addEventListener("click",()=>openAdminEdit(p));row.querySelector(".del").addEventListener("click",()=>deleteAdmin(p));box.appendChild(row);});
+}
+function openAdminEdit(p=null){$("#adminEditForm").classList.remove("hidden");$("#adminEditTitle").textContent=p?"Edit player":"Add player";$("#adminEditId").value=p?.id||"";$("#adminName").value=p?.name||"";$("#adminShip").value=p?.ship||"";$("#adminPref1").value=p?.prefs?.[0]||"";$("#adminPref2").value=p?.prefs?.[1]||"";$("#adminPref3").value=p?.prefs?.[2]||"";setChecked($("#adminDislikes"),p?.dislikes||[]);syncFlexible("admin");$("#adminEditForm").scrollIntoView({behavior:"smooth",block:"start"});}
+function closeAdminEdit(){$("#adminEditForm").classList.add("hidden");$("#adminEditForm").reset();setChecked($("#adminDislikes"),[]);syncFlexible("admin");}
+$("#adminAddBtn").addEventListener("click",()=>openAdminEdit(null));$("#adminCancelEdit").addEventListener("click",closeAdminEdit);
+$("#adminEditForm").addEventListener("submit",async e=>{
+  e.preventDefault();const id=$("#adminEditId").value,p={name:$("#adminName").value.trim(),ship:$("#adminShip").value,prefs:[$("#adminPref1").value,$("#adminPref2").value,$("#adminPref3").value],dislikes:checkedValues($("#adminDislikes"))},err=validateLocal(p,id);if(err){setMessage($("#adminMessage"),err,"error");return;}if(!id&&players.length>=MAX_PLAYERS){setMessage($("#adminMessage"),"There are already 28 submissions.","error");return;}
+  try{if(id){const existing=players.find(x=>x.id===id);await setDoc(doc(db,"players",id),playerPayload(p,existing?.ownerUid||currentUser.uid,existing));}else{await addDoc(collection(db,"players"),playerPayload(p,"ADMIN_MANAGED",null));}closeAdminEdit();setMessage($("#adminMessage"),"Entry saved.","ok");}catch(ex){setMessage($("#adminMessage"),friendlyError(ex),"error");}
+});
+async function deleteAdmin(p){if(!confirm(`Delete ${p.name}'s submission?`))return;try{await deleteDoc(doc(db,"players",p.id));setMessage($("#adminMessage"),`${p.name} deleted.`,"ok");}catch(ex){setMessage($("#adminMessage"),friendlyError(ex),"error");}}
+$("#lockBtn").addEventListener("click",async()=>{try{const next=!locked;await setDoc(doc(db,"config","app"),{locked:next,updatedAt:serverTimestamp()},{merge:true});setMessage($("#adminMessage"),next?"Submissions locked.":"Submissions unlocked.","ok");}catch(ex){setMessage($("#adminMessage"),friendlyError(ex),"error");}});
+$("#resetBtn").addEventListener("click",async()=>{if(!confirm("RESET ALL submissions?"))return;if(!confirm("Final check: delete every response and unlock submissions?"))return;try{const snap=await getDocs(collection(db,"players")),batch=writeBatch(db);snap.forEach(d=>batch.delete(d.ref));batch.set(doc(db,"config","app"),{locked:false,updatedAt:serverTimestamp()},{merge:true});await batch.commit();closeAdminEdit();setMessage($("#adminMessage"),"All submissions reset.","ok");}catch(ex){setMessage($("#adminMessage"),friendlyError(ex),"error");}});
+
+boot();
 </script>
 </body>
 </html>
