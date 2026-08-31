@@ -4,27 +4,59 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#071426">
-<title>UFN Bridge Command Crew Allocator</title>
+<title>Sarah's Mega Mission Crew Tracker</title>
 <style>
-:root{--navy:#071426;--panel:#0f294b;--gold:#e5bc59;--text:#f4f7fb;--muted:#aebdd1;--line:#29496f;--green:#55d59c;--blue:#79adff;--amber:#f0bc66;--red:#ff8589;--purple:#b49cff}
-*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#0c294b 0,#071426 42%,#050d18 100%);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{width:min(1500px,100%);margin:auto;padding:clamp(10px,2vw,20px)}header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:8px 2px 18px;border-bottom:1px solid rgba(229,188,89,.25);margin-bottom:16px}h1{margin:0;color:var(--gold);font-size:clamp(26px,4.2vw,44px);line-height:.98;letter-spacing:.035em}header p{margin:7px 0 0;color:var(--muted)}.top-right{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.pill{border:1px solid var(--line);background:#081a31;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900}.pill.live{border-color:#2f7558;color:#a6f2cb}.pill.locked{border-color:#7e5530;color:#ffd397}.layout{display:grid;grid-template-columns:minmax(300px,440px) minmax(0,1fr);gap:16px;align-items:start}.panel{background:linear-gradient(180deg,rgba(15,41,75,.98),rgba(8,26,49,.98));border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}.panel h2{margin:0 0 5px;font-size:21px}.panel h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.09em;color:var(--gold)}.sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.45}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label,.label{font-size:12px;font-weight:900;color:#dce6f2}.field input,.field select{width:100%;min-height:44px;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:#06172a;color:var(--text);font-size:16px}.field input:focus,.field select:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.dislikes{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#06172a;border:1px solid var(--line);padding:9px;border-radius:10px;max-height:235px;overflow:auto}.check{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:13px}.check input{width:17px;height:17px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.btn{border-radius:9px;padding:10px 13px;min-height:42px;font-weight:900;border:1px solid var(--line)}.primary{background:var(--gold);border-color:var(--gold);color:#18243a}.secondary{background:#102d52;color:var(--text)}.danger{background:#381d28;border-color:#743748;color:#ffd8dd}.tiny{min-height:34px;padding:6px 9px;font-size:12px}.btn:disabled{opacity:.48;cursor:not-allowed}.message{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:10px 11px;font-size:13px;color:#dce7f5;margin-top:11px;line-height:1.45}.message:empty{display:none}.message.error{border-color:#823e4a;background:#321a22;color:#ffc5ca}.message.ok{border-color:#2e7156;background:#102c24;color:#c2f6dd}.message.warn{border-color:#7b5a29;background:#2d2516;color:#ffe1aa}.my-summary{border:1px solid #526d90;background:#0a213d;border-radius:11px;padding:12px;margin-bottom:12px}.my-summary strong{color:#fff}.choice-list{display:grid;gap:5px;margin:9px 0 10px;font-size:13px}.choice-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px}.choice-row span:first-child{color:var(--muted);font-weight:800}.assignment-callout{border:1px solid rgba(229,188,89,.45);background:rgba(229,188,89,.08);border-radius:9px;padding:9px 10px;margin-top:8px}.assignment-callout b{color:var(--gold)}.ships{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ship{border:1px solid var(--line);background:#071a31;border-radius:14px;overflow:hidden}.ship-head{padding:12px 13px;background:#0d2849;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px}.ship-head h2{font-size:22px;margin:0;color:var(--gold)}.ship-count{font-size:12px;color:var(--muted);font-weight:850}.section-label{padding:8px 12px 6px;color:#9fb5cf;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;background:#081e38}.slot{display:grid;grid-template-columns:minmax(120px,.9fr) minmax(120px,1.1fr);align-items:center;gap:8px;padding:9px 11px;border-top:1px solid rgba(41,73,111,.58);min-height:52px}.role{font-weight:900;font-size:13px}.assigned{font-weight:800;font-size:13px;min-width:0}.vacant{color:#7186a0;font-style:italic}.board-note{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:9px 11px;margin-bottom:11px;color:var(--muted);font-size:12px;line-height:1.4}.admin-only{display:none}.admin-mode .admin-only{display:block}.metrics{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}.metric{border:1px solid var(--line);background:#071a31;border-radius:9px;padding:7px 9px;font-size:12px}.metric strong{font-size:16px;color:#fff}.admin-table{display:grid;gap:8px}.admin-row{border:1px solid var(--line);background:#071a31;border-radius:11px;padding:10px}.admin-row-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.admin-name{font-weight:950}.admin-meta{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}.admin-actions{display:flex;gap:6px;flex-wrap:wrap}.footer{color:var(--muted);font-size:11px;text-align:center;padding:8px 0 16px}.hidden{display:none!important}@media(max-width:1000px){.layout{grid-template-columns:1fr}.left{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.left .panel{margin-bottom:0}.left .panel.admin-only{grid-column:1/-1}}@media(max-width:760px){.app{padding:10px}.left{display:block}.left .panel{margin-bottom:12px}.ships{grid-template-columns:1fr}.rank-grid{grid-template-columns:1fr}.dislikes{grid-template-columns:1fr 1fr}header{align-items:flex-start;flex-direction:column}.top-right{justify-content:flex-start}}@media(max-width:430px){.panel{padding:12px}.dislikes{grid-template-columns:1fr}.slot{grid-template-columns:1fr 1fr}.choice-row{grid-template-columns:82px minmax(0,1fr)}}
+:root{
+  --navy:#06111f;--navy2:#0a1c31;--panel:#0d2945;--panel2:#102f4e;--gold:#e3bd63;--gold2:#f7d98c;
+  --text:#f4f8fc;--muted:#9db1c7;--line:#31536f;--cyan:#6bd7e8;--green:#66dda4;--blue:#7caef8;
+  --amber:#f0bc66;--red:#ff8589;--purple:#b49cff;--open:#71d8a9;--taken:#7fc8ff
+}
+*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;background:
+  linear-gradient(rgba(88,136,175,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(88,136,175,.045) 1px,transparent 1px),
+  radial-gradient(circle at 18% -5%,#123957 0,#071827 35%,#040b13 78%);background-size:32px 32px,32px 32px,auto;color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 18%,transparent 82%,rgba(0,0,0,.18));mix-blend-mode:screen}
+button,input,select{font:inherit}button{cursor:pointer}.app{width:min(1500px,100%);margin:auto;padding:clamp(10px,2vw,22px)}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:12px 4px 18px;border-bottom:1px solid rgba(227,189,99,.36);margin-bottom:16px;position:relative}
+header:after{content:"";position:absolute;left:0;bottom:-2px;width:180px;height:3px;background:linear-gradient(90deg,var(--gold),transparent)}
+.mission-kicker{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);font-weight:950;margin-bottom:7px}.mission-title{margin:0;color:var(--gold2);font-size:clamp(28px,4.4vw,48px);line-height:.96;letter-spacing:.025em;text-transform:uppercase;text-shadow:0 0 24px rgba(227,189,99,.13)}
+header p{margin:8px 0 0;color:var(--muted)}.top-right{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.pill{border:1px solid var(--line);background:#071a2c;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900}.pill.live{border-color:#367d64;color:#b3f5d3}.pill.locked{border-color:#80603b;color:#ffdda2}
+.layout{display:grid;grid-template-columns:minmax(320px,450px) minmax(0,1fr);gap:16px;align-items:start}.panel{background:linear-gradient(180deg,rgba(14,42,70,.97),rgba(7,25,43,.98));border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:inset 0 1px rgba(255,255,255,.035);position:relative;overflow:hidden}.panel:before{content:"";position:absolute;left:0;top:0;width:54px;height:2px;background:var(--gold)}
+.panel h2{margin:0 0 5px;font-size:21px}.panel h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.15em;color:var(--gold)}.sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.48}
+.registration-banner{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;align-items:center;border:1px solid #426482;background:linear-gradient(90deg,rgba(107,215,232,.1),rgba(11,34,57,.75));border-left:4px solid var(--cyan);padding:10px 11px;border-radius:9px;margin:0 0 13px}.registration-banner .reg-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:950}.registration-banner strong{font-size:15px;color:#fff}.registration-banner .reg-hint{grid-column:1/-1;color:var(--muted);font-size:11px;line-height:1.35}.registration-banner.owned{border-left-color:var(--green);background:linear-gradient(90deg,rgba(102,221,164,.1),rgba(11,34,57,.75))}.registration-banner.owned .reg-label{color:var(--green)}.registration-banner.blocked{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,133,137,.09),rgba(11,34,57,.75))}.registration-banner.blocked .reg-label{color:var(--red)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:11px}.field label,.label{font-size:11px;font-weight:950;color:#dce6f2;letter-spacing:.03em}.field input,.field select{width:100%;min-height:44px;padding:10px 11px;border-radius:8px;border:1px solid var(--line);background:#051728;color:var(--text);font-size:16px}.field input[readonly]{background:#0a2137;color:#dce7f5;border-color:#4c718e}.field input:focus,.field select:focus,button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.dislikes{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#051728;border:1px solid var(--line);padding:9px;border-radius:9px;max-height:235px;overflow:auto}.check{display:flex;align-items:center;gap:7px;padding:4px 2px;font-size:13px}.check input{width:17px;height:17px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.btn{border-radius:8px;padding:10px 13px;min-height:42px;font-weight:950;border:1px solid var(--line);letter-spacing:.015em}.primary{background:linear-gradient(180deg,#f0ce80,#d8ae50);border-color:#f0ce80;color:#17243a}.secondary{background:#123451;color:var(--text)}.danger{background:#381d28;border-color:#743748;color:#ffd8dd}.tiny{min-height:34px;padding:6px 9px;font-size:12px}.btn:disabled{opacity:.48;cursor:not-allowed}
+.message{border:1px solid var(--line);background:#071a31;border-radius:9px;padding:10px 11px;font-size:13px;color:#dce7f5;margin-top:11px;line-height:1.45}.message:empty{display:none}.support-note{border:1px solid rgba(229,188,89,.38);background:rgba(229,188,89,.07);border-radius:9px;padding:9px 11px;margin:10px 0 12px;color:#f3dfaa;font-size:12px;line-height:1.4}.support-note strong{color:var(--gold)}.message.error{border-color:#823e4a;background:#321a22;color:#ffc5ca}.message.ok{border-color:#2e7156;background:#102c24;color:#c2f6dd}.message.warn{border-color:#7b5a29;background:#2d2516;color:#ffe1aa}
+.my-summary{border:1px solid #526d90;background:#0a213d;border-radius:10px;padding:12px;margin-bottom:12px}.my-summary strong{color:#fff}.choice-list{display:grid;gap:5px;margin:9px 0 10px;font-size:13px}.choice-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:8px}.choice-row span:first-child{color:var(--muted);font-weight:800}.assignment-callout{border:1px solid rgba(227,189,99,.5);background:rgba(227,189,99,.08);border-radius:8px;padding:9px 10px;margin-top:8px}.assignment-callout b{color:var(--gold2)}
+.board-legend{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.legend-key{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;color:var(--muted);background:#071a2d}.legend-dot{width:8px;height:8px;border-radius:50%}.legend-dot.taken{background:var(--taken);box-shadow:0 0 8px rgba(127,200,255,.45)}.legend-dot.open{background:var(--open);box-shadow:0 0 8px rgba(113,216,169,.45)}
+.ships{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ship{border:1px solid #355979;background:#061a2b;border-radius:13px;overflow:hidden;box-shadow:inset 0 0 26px rgba(0,0,0,.2)}.ship-head{padding:12px 13px;background:linear-gradient(90deg,#103755,#0a2741);border-bottom:1px solid #41627b;display:flex;justify-content:space-between;align-items:center;gap:10px}.ship-ident{display:flex;align-items:center;gap:10px;min-width:0}.ship-badge{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(255,255,255,.12))}.ship-head h2{font-size:22px;margin:0;color:var(--gold2);text-transform:uppercase;letter-spacing:.055em}.ship-subtitle{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:900;margin-top:2px}.ship-count{font-size:11px;color:#d3dfeb;font-weight:900;border:1px solid #4b708d;padding:5px 8px;border-radius:999px;white-space:nowrap}.section-label{padding:8px 12px 6px;color:#9fb5cf;font-size:9px;font-weight:950;letter-spacing:.16em;text-transform:uppercase;background:#071e33}
+.slot{display:grid;grid-template-columns:minmax(105px,.88fr) minmax(150px,1.12fr);align-items:center;gap:8px;padding:8px 10px;border-top:1px solid rgba(49,83,111,.65);min-height:54px;position:relative}.slot.taken{background:linear-gradient(90deg,rgba(90,162,215,.14),rgba(7,27,46,.55));border-left:4px solid var(--taken)}.slot.open{background:linear-gradient(90deg,rgba(71,159,121,.07),rgba(7,27,46,.3));border-left:4px solid rgba(113,216,169,.55)}.role{font-weight:950;font-size:13px}.station-status{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0}.status-tag{font-size:8px;font-weight:1000;letter-spacing:.12em;border-radius:999px;padding:4px 6px;white-space:nowrap}.status-tag.taken{color:#d9f1ff;border:1px solid #4d88ad;background:#143d59}.status-tag.open{color:#c8f5dd;border:1px solid #3e8060;background:#103b2b}.assigned{font-weight:900;font-size:13px;min-width:0;overflow-wrap:anywhere;text-align:right}.vacant{color:#8fcfaf;font-style:normal;font-weight:900;text-transform:uppercase;letter-spacing:.06em;font-size:10px}
+.board-note{border:1px solid var(--line);background:#071a31;border-radius:9px;padding:9px 11px;margin-bottom:10px;color:var(--muted);font-size:12px;line-height:1.4}.admin-only{display:none}.admin-mode .admin-only{display:block}.metrics{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}.metric{border:1px solid var(--line);background:#071a31;border-radius:8px;padding:7px 9px;font-size:12px}.metric strong{font-size:16px;color:#fff}.admin-table{display:grid;gap:8px}.admin-row{border:1px solid var(--line);background:#071a31;border-radius:10px;padding:10px}.admin-row-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.admin-name{font-weight:950}.admin-meta{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px}.admin-actions{display:flex;gap:6px;flex-wrap:wrap}.footer{color:var(--muted);font-size:11px;text-align:center;padding:8px 0 16px}.hidden{display:none!important}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}.left{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.left .panel{margin-bottom:0}.left .panel.admin-only{grid-column:1/-1}}
+@media(max-width:760px){.app{padding:10px}.left{display:block}.left .panel{margin-bottom:12px}.ships{grid-template-columns:1fr}.rank-grid{grid-template-columns:1fr}.dislikes{grid-template-columns:1fr 1fr}header{align-items:flex-start;flex-direction:column}.top-right{justify-content:flex-start}.mission-title{font-size:clamp(26px,9vw,39px)}}
+@media(max-width:430px){.panel{padding:12px}.dislikes{grid-template-columns:1fr}.slot{grid-template-columns:minmax(95px,.8fr) minmax(0,1.2fr)}.choice-row{grid-template-columns:82px minmax(0,1fr)}.ship-badge{width:38px;height:38px}.ship-head h2{font-size:19px}.status-tag{display:none}}
+
 </style>
 </head>
 <body>
 <div class="app" id="app">
   <header>
-    <div><h1>BRIDGE COMMAND<br>CREW ALLOCATOR</h1><p>Takanami + Havock · 28 crew positions</p></div>
+    <div><div class="mission-kicker">Bridge Command · Birthday Deployment</div><h1 class="mission-title">Sarah's Mega Mission<br>Crew Tracker</h1><p>Takanami + Havock · 28 crew positions · live tactical roster</p></div>
     <div class="top-right"><div id="dataStatus" class="pill">Connecting…</div><div id="countStatus" class="pill">0 / 28 submitted</div></div>
   </header>
 
   <div class="layout">
     <aside class="left">
       <section class="panel" id="playerPanel">
+        <h3>Crew registration terminal</h3>
         <h2>Your choices</h2>
-        <p class="sub">Choose a ship preference and up to three ranked station preferences. Select <strong>No preference / fill a gap</strong> when you are happy to be placed wherever needed. Anything marked “Really don't want” is used only as a last resort.</p>
+        <p class="sub">Enter your own name, ship preference and three ranked station choices. If this device has already registered that exact name, your saved entry will reopen for editing. Other people's entries never get edit buttons on the public roster.</p><div class="support-note"><strong>Need help?</strong> If anything goes wrong, you cannot reopen your entry, or your assignment looks wrong, contact <strong>Smarty or Sarah</strong>.</div>
+        <div id="registrationBanner" class="registration-banner">
+          <span class="reg-label">Registering</span><strong id="registrationName">New crew member</strong>
+          <span id="registrationHint" class="reg-hint">Enter a name below. This device can register several different people.</span>
+        </div>
         <div id="mySummary" class="my-summary hidden"></div>
         <form id="playerForm">
-          <div class="field"><label for="playerName">Name</label><input id="playerName" maxlength="50" autocomplete="name" required placeholder="Your name"></div>
+          <div class="field"><label for="playerName">Who is being registered?</label><input id="playerName" maxlength="50" autocomplete="off" required placeholder="Type your name"></div>
           <div class="field"><label for="shipPref">Preferred ship</label><select id="shipPref"><option value="">No preference</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div>
           <div class="rank-grid">
             <div class="field"><label for="pref1">1st station</label><select id="pref1" required></select></div>
@@ -33,7 +65,7 @@
           </div>
           <div class="label" style="margin:2px 0 6px">Really don't want</div>
           <div id="dislikes" class="dislikes"></div>
-          <div class="actions"><button id="submitBtn" class="btn primary" type="submit">Submit choices</button><button id="cancelPlayerEdit" class="btn secondary hidden" type="button">Cancel edit</button></div>
+          <div class="actions"><button id="submitBtn" class="btn primary" type="submit">Register this person</button><button id="cancelPlayerEdit" class="btn secondary hidden" type="button">Register someone else</button></div>
           <div id="formMessage" class="message" aria-live="polite"></div>
         </form>
       </section>
@@ -69,23 +101,29 @@
 
     <main>
       <section class="panel">
+        <h3>Tactical crew status</h3>
         <h2>Current suggested assignments</h2>
         <p class="sub">This recalculates whenever a response changes. Matching station choices are split across the two ships where possible. If a true tie remains, the person who chose first gets priority.</p>
         <div id="boardNote" class="board-note">Waiting for shared data…</div>
+        <div class="board-legend"><span class="legend-key"><span class="legend-dot taken"></span>TAKEN</span><span class="legend-key"><span class="legend-dot open"></span>OPEN</span></div>
         <div id="ships" class="ships"></div>
       </section>
     </main>
   </div>
-  <div class="footer">UFN Bridge Command · Suggested assignments remain provisional until the GM finalises them.</div>
+  <div class="footer">Sarah's Mega Mission · Bridge Command crew assignments remain provisional until the GM finalises them.</div>
 </div>
 
 <script type="module">
 import { firebaseConfig, ADMIN_UID } from "./firebase-config.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInAnonymously, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
 const SHIPS = ["Takanami", "Havock"];
+const SHIP_BADGES = {
+  Takanami:"https://cdn.discordapp.com/emojis/1351204968992084038.webp?size=96",
+  Havock:"https://cdn.discordapp.com/emojis/1351204847453605970.webp?size=96"
+};
 const FLEX = "__FLEX__";
 const FLEX_LABEL = "No preference / fill a gap";
 const ROLES = [
@@ -100,10 +138,60 @@ const adminMode = new URLSearchParams(location.search).get("admin") === "1";
 if(adminMode) document.body.classList.add("admin-mode");
 
 let app=null, auth=null, db=null, currentUser=null, players=[], locked=false, myEntry=null, currentBoard={assignments:[],metrics:{}}, unsubPlayers=null, unsubConfig=null;
+let activeProfile=null, activeContext=null, nameLookupTimer=null;
+const PROFILE_STORE="sarah-mega-mission-local-profiles-v1";
+const ACTIVE_STORE="sarah-mega-mission-active-profile-v1";
+const PRIMARY_LEGACY="__PRIMARY_LEGACY__";
+let localProfiles=loadLocalProfiles();
 
 function configReady(){
   return firebaseConfig && typeof firebaseConfig.apiKey === "string" && firebaseConfig.apiKey.length > 10 && !firebaseConfig.apiKey.includes("PASTE_") && typeof firebaseConfig.projectId === "string" && !firebaseConfig.projectId.includes("PASTE_");
 }
+function normalizeName(value){return String(value||"").trim().replace(/\s+/g," ").toLowerCase();}
+function loadLocalProfiles(){try{const x=JSON.parse(localStorage.getItem(PROFILE_STORE)||"{}");return x&&typeof x==="object"?x:{};}catch(_e){return {};}}
+function saveLocalProfiles(){try{localStorage.setItem(PROFILE_STORE,JSON.stringify(localProfiles));}catch(_e){}}
+function saveActiveKey(key){try{if(key)localStorage.setItem(ACTIVE_STORE,key);else localStorage.removeItem(ACTIVE_STORE);}catch(_e){}}
+function profileForName(name){return localProfiles[normalizeName(name)]||null;}
+function remoteForName(name){const n=normalizeName(name);return players.find(p=>normalizeName(p.name)===n)||null;}
+function appByName(name){return getApps().find(a=>a.name===name)||null;}
+async function waitForAuthInstance(authInstance){return await new Promise(resolve=>{let done=false;let unsub=()=>{};const finish=u=>{if(done)return;done=true;try{unsub();}catch(_e){}resolve(u);};unsub=onAuthStateChanged(authInstance,finish);setTimeout(()=>finish(authInstance.currentUser),1200);});}
+async function ensureProfileContext(profile){
+  if(!profile)throw new Error("No player profile selected.");
+  if(profile.appName===PRIMARY_LEGACY){if(!auth.currentUser||auth.currentUser.uid!==profile.uid)throw new Error("This older saved entry can no longer be opened on this browser. Contact Smarty or Sarah to edit it.");return {app,auth,db,user:auth.currentUser};}
+  let pApp=appByName(profile.appName);if(!pApp)pApp=initializeApp(firebaseConfig,profile.appName);
+  const pAuth=getAuth(pApp),pDb=getFirestore(pApp);let user=await waitForAuthInstance(pAuth);
+  if(!user){await setPersistence(pAuth,browserLocalPersistence);user=(await signInAnonymously(pAuth)).user;}
+  if(profile.uid&&profile.uid!==user.uid)throw new Error("This browser has lost the saved sign-in for that entry. Contact Smarty or Sarah to edit it.");
+  if(!profile.uid){profile.uid=user.uid;localProfiles[normalizeName(profile.name)]=profile;saveLocalProfiles();}
+  return {app:pApp,auth:pAuth,db:pDb,user};
+}
+function randomAppName(){const rnd=(globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2)+Date.now().toString(36)).replace(/[^a-zA-Z0-9_-]/g,"");return "crew_"+rnd.slice(0,28);}
+async function createProfile(name){
+  const key=normalizeName(name);if(!key)throw new Error("Enter a name first.");
+  const appName=randomAppName();let pApp=initializeApp(firebaseConfig,appName),pAuth=getAuth(pApp);await setPersistence(pAuth,browserLocalPersistence);const user=(await signInAnonymously(pAuth)).user;
+  const profile={name:String(name).trim(),appName,uid:user.uid};localProfiles[key]=profile;saveLocalProfiles();return {profile,context:{app:pApp,auth:pAuth,db:getFirestore(pApp),user}};
+}
+function registerLegacyPrimaryIfNeeded(){
+  if(adminMode||!currentUser?.isAnonymous)return;const legacy=players.find(p=>p.id===currentUser.uid);if(!legacy)return;
+  const key=normalizeName(legacy.name);if(!localProfiles[key]){localProfiles[key]={name:legacy.name,appName:PRIMARY_LEGACY,uid:currentUser.uid};saveLocalProfiles();}
+}
+function updateRegistrationBanner(mode="new",name=""){
+  const box=$("#registrationBanner"),title=$("#registrationName"),hint=$("#registrationHint");box.className="registration-banner"+(mode==="owned"?" owned":mode==="blocked"?" blocked":"");
+  if(mode==="owned"){box.querySelector(".reg-label").textContent="Editing your entry";title.textContent=name||"Saved crew member";hint.textContent="This browser holds the Firebase identity for this entry. Saving here updates only this person's choices.";return;}
+  if(mode==="blocked"){box.querySelector(".reg-label").textContent="Already registered";title.textContent=name||"Crew member";hint.textContent="That name exists, but this browser does not own the entry. Use the original device or contact Smarty or Sarah to edit it.";return;}
+  box.querySelector(".reg-label").textContent="Registering";title.textContent=name?name:"New crew member";hint.textContent="Enter a name below. This device can register several people; each gets a separate Firebase identity.";
+}
+function setActiveProfile(profile,context=null){activeProfile=profile||null;activeContext=context||null;saveActiveKey(profile?normalizeName(profile.name):"");myEntry=profile?players.find(p=>p.id===profile.uid)||null:null;$("#playerName").readOnly=Boolean(profile&&myEntry);updateRegistrationBanner(profile?"owned":"new",profile?.name||"");renderMySummary();applyLocked();}
+async function activateLocalProfile(profile,loadForm=true){
+  try{const ctx=await ensureProfileContext(profile);activeProfile=profile;activeContext=ctx;saveActiveKey(normalizeName(profile.name));myEntry=players.find(p=>p.id===profile.uid)||null;$("#playerName").value=profile.name;$("#playerName").readOnly=Boolean(myEntry);updateRegistrationBanner("owned",profile.name);if(myEntry&&loadForm)populatePlayerForm(myEntry);else renderMySummary();return true;}catch(ex){setActiveProfile(null);setMessage($("#formMessage"),ex.message||"Could not reopen that saved entry.","error");return false;}
+}
+async function resolveTypedName(loadForm=true){
+  if(adminMode)return;const raw=$("#playerName").value.trim(),key=normalizeName(raw);if(!key){if(!activeProfile)setActiveProfile(null);updateRegistrationBanner("new","");return;}
+  if(activeProfile&&normalizeName(activeProfile.name)===key){updateRegistrationBanner("owned",activeProfile.name);return;}
+  const local=localProfiles[key];if(local){await activateLocalProfile(local,loadForm);return;}
+  activeProfile=null;activeContext=null;myEntry=null;saveActiveKey("");$("#playerName").readOnly=false;renderMySummary();const remote=remoteForName(raw);updateRegistrationBanner(remote?"blocked":"new",raw);if(remote)setMessage($("#formMessage"),"That name is already registered, but this device cannot edit it. Use the original device or contact Smarty or Sarah.","warn");else if($("#formMessage").classList.contains("warn"))setMessage($("#formMessage"),"");
+}
+function scheduleNameLookup(){clearTimeout(nameLookupTimer);nameLookupTimer=setTimeout(()=>resolveTypedName(true),500);}
 function setMessage(el,text,type=""){el.textContent=text||"";el.className="message"+(type?" "+type:"");}
 function prefLabel(value){return value===FLEX?FLEX_LABEL:value||"—";}
 function optionHtml(){return '<option value="">Choose…</option><option value="'+FLEX+'">'+FLEX_LABEL+'</option>'+ROLE_NAMES.map(r=>`<option value="${esc(r)}">${esc(r)}</option>`).join("");}
@@ -132,17 +220,16 @@ function validateLocal(p,ignoreId=""){
   const concrete=p.prefs.filter(x=>x!==FLEX);
   if(new Set(concrete).size!==concrete.length)return "Your named station choices must be different.";
   const clash=concrete.find(x=>p.dislikes.includes(x));if(clash)return `${clash} cannot be both a preference and a Really don't want station.`;
-  if(players.some(x=>x.id!==ignoreId && x.name.trim().toLowerCase()===p.name.toLowerCase()))return "That name has already submitted. Ask the GM if it is your old entry.";
+  if(players.some(x=>x.id!==ignoreId && normalizeName(x.name)===normalizeName(p.name)))return "That name has already submitted. Use the original device for that person, or contact Smarty or Sarah to edit it.";
   return "";
 }
 function clearPlayerForm(keepMessage=false){
-  const msg=$("#formMessage").textContent,cls=$("#formMessage").className;
-  $("#playerForm").reset();setChecked($("#dislikes"),[]);syncFlexible("");$("#cancelPlayerEdit").classList.add("hidden");
-  if(keepMessage){$("#formMessage").textContent=msg;$("#formMessage").className=cls;}else setMessage($("#formMessage"),"");
-  renderMySummary();applyLocked();
+  const msg=$("#formMessage").textContent,cls=$("#formMessage").className;activeProfile=null;activeContext=null;myEntry=null;saveActiveKey("");
+  $("#playerForm").reset();$("#playerName").readOnly=false;setChecked($("#dislikes"),[]);syncFlexible("");$("#cancelPlayerEdit").classList.add("hidden");$("#submitBtn").textContent="Register this person";updateRegistrationBanner("new","");
+  if(keepMessage){$("#formMessage").textContent=msg;$("#formMessage").className=cls;}else setMessage($("#formMessage"),"");renderMySummary();applyLocked();
 }
 function populatePlayerForm(entry){
-  $("#playerName").value=entry.name;$("#shipPref").value=entry.ship||"";$("#pref1").value=entry.prefs?.[0]||"";$("#pref2").value=entry.prefs?.[1]||"";$("#pref3").value=entry.prefs?.[2]||"";setChecked($("#dislikes"),entry.dislikes||[]);syncFlexible("");$("#submitBtn").textContent="Save my changes";$("#cancelPlayerEdit").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});applyLocked();
+  $("#playerName").value=entry.name;$("#playerName").readOnly=true;$("#shipPref").value=entry.ship||"";$("#pref1").value=entry.prefs?.[0]||"";$("#pref2").value=entry.prefs?.[1]||"";$("#pref3").value=entry.prefs?.[2]||"";setChecked($("#dislikes"),entry.dislikes||[]);syncFlexible("");$("#submitBtn").textContent=`Save ${entry.name}'s choices`;$("#cancelPlayerEdit").classList.remove("hidden");updateRegistrationBanner("owned",entry.name);window.scrollTo({top:0,behavior:"smooth"});applyLocked();
 }
 function quality(person,role){
   if((person.dislikes||[]).includes(role))return {kind:"avoid",rank:0,label:"Really don't want"};
@@ -155,14 +242,11 @@ function quality(person,role){
 }
 function renderMySummary(){
   const box=$("#mySummary");
-  if(!myEntry||adminMode){box.classList.add("hidden");box.innerHTML="";$("#submitBtn").textContent="Submit choices";return;}
-  const assignment=currentBoard.assignments?.find(a=>a.playerId===myEntry.id);
-  const avoidText=myEntry.dislikes?.length?myEntry.dislikes.join(", "):"None";
+  if(!myEntry||adminMode){box.classList.add("hidden");box.innerHTML="";if(!activeProfile)$("#submitBtn").textContent="Register this person";return;}
+  const assignment=currentBoard.assignments?.find(a=>a.playerId===myEntry.id),avoidText=myEntry.dislikes?.length?myEntry.dislikes.join(", "):"None";
   const assignmentText=assignment?`<div class="assignment-callout">Current suggestion: <b>${esc(assignment.ship)} · ${esc(assignment.role)}</b><br><span class="sub" style="margin:2px 0 0">${esc(assignment.qualityLabel)}${assignment.shipPreference?` · ship ${assignment.shipMet?"preference met":"preference not met"}`:""}</span></div>`:"";
-  box.classList.remove("hidden");
-  box.innerHTML=`<strong>Your saved choices</strong><div class="choice-list"><div class="choice-row"><span>Ship</span><b>${esc(myEntry.ship||"No preference")}</b></div><div class="choice-row"><span>1st station</span><b>${esc(prefLabel(myEntry.prefs?.[0]))}</b></div><div class="choice-row"><span>2nd station</span><b>${esc(prefLabel(myEntry.prefs?.[1]))}</b></div><div class="choice-row"><span>3rd station</span><b>${esc(prefLabel(myEntry.prefs?.[2]))}</b></div><div class="choice-row"><span>Don't want</span><b>${esc(avoidText)}</b></div></div>${assignmentText}<div class="actions"><button id="editMine" class="btn secondary tiny" type="button">Edit my choices</button></div>`;
-  $("#editMine").addEventListener("click",()=>populatePlayerForm(myEntry));
-  $("#submitBtn").textContent="Save my choices";
+  box.classList.remove("hidden");box.innerHTML=`<strong>Registered as: ${esc(myEntry.name)}</strong><div class="choice-list"><div class="choice-row"><span>Ship</span><b>${esc(myEntry.ship||"No preference")}</b></div><div class="choice-row"><span>1st station</span><b>${esc(prefLabel(myEntry.prefs?.[0]))}</b></div><div class="choice-row"><span>2nd station</span><b>${esc(prefLabel(myEntry.prefs?.[1]))}</b></div><div class="choice-row"><span>3rd station</span><b>${esc(prefLabel(myEntry.prefs?.[2]))}</b></div><div class="choice-row"><span>Don't want</span><b>${esc(avoidText)}</b></div></div>${assignmentText}<div class="actions"><button id="editMine" class="btn secondary tiny" type="button">Edit ${esc(myEntry.name)}'s choices</button>${locked?"":`<button id="nextPlayer" class="btn primary tiny" type="button">Register another person</button>`}</div>`;
+  $("#editMine").addEventListener("click",()=>populatePlayerForm(myEntry));if($("#nextPlayer"))$("#nextPlayer").addEventListener("click",startAnotherPlayer);$("#submitBtn").textContent=`Save ${myEntry.name}'s choices`;
 }
 function applyLocked(){
   const normalPlayer=!currentUser||currentUser.isAnonymous;
@@ -213,11 +297,17 @@ function renderState(){
   else if(count<MAX_PLAYERS)$("#boardNote").textContent=`Provisional allocation based on ${count} response${count===1?"":"s"}. ${MAX_PLAYERS-count} player${MAX_PLAYERS-count===1?"":"s"} still to submit, so assignments may move.`;
   else if(m.avoid)$("#boardNote").textContent=`All 28 submitted. ${m.avoid} assignment${m.avoid===1?" is":"s are"} currently using a Really don't want role as a last resort.`;
   else $("#boardNote").textContent="All 28 submitted. No Really don't want roles are currently being used.";
-  renderShips(currentBoard.assignments);myEntry=currentUser?players.find(p=>p.id===currentUser.uid)||null:null;renderMySummary();applyLocked();if(adminMode&&currentUser&&!currentUser.isAnonymous)renderAdmin();
+  renderShips(currentBoard.assignments);registerLegacyPrimaryIfNeeded();if(activeProfile)myEntry=players.find(p=>p.id===activeProfile.uid)||null;renderMySummary();applyLocked();if(adminMode&&currentUser&&!currentUser.isAnonymous)renderAdmin();
 }
 function renderShips(assignments){
   const byKey=new Map(assignments.map(a=>[a.ship+"|"+a.role,a])),box=$("#ships");box.innerHTML="";
-  for(const ship of SHIPS){const card=document.createElement("section");card.className="ship";const count=assignments.filter(a=>a.ship===ship).length;card.innerHTML=`<div class="ship-head"><h2>${ship}</h2><div class="ship-count">${count} / 14 assigned</div></div>`;for(const group of ["Bridge","Shuttle"]){const lab=document.createElement("div");lab.className="section-label";lab.textContent=group==="Bridge"?"Main ship bridge":"Ship shuttle";card.appendChild(lab);for(const r of ROLES.filter(x=>x.group===group)){const a=byKey.get(ship+"|"+r.name),row=document.createElement("div");row.className="slot";row.innerHTML=a?`<div class="role">${esc(r.name)}</div><div class="assigned">${esc(a.name)}</div>`:`<div class="role">${esc(r.name)}</div><div class="assigned vacant">Vacant</div>`;card.appendChild(row);}}box.appendChild(card);}
+  for(const ship of SHIPS){
+    const card=document.createElement("section");card.className="ship";const count=assignments.filter(a=>a.ship===ship).length;
+    card.innerHTML=`<div class="ship-head"><div class="ship-ident"><img class="ship-badge" src="${SHIP_BADGES[ship]}" alt="${ship} badge"><div><h2>${ship}</h2><div class="ship-subtitle">Bridge Command roster</div></div></div><div class="ship-count">${count} / 14 crew</div></div>`;
+    for(const group of ["Bridge","Shuttle"]){const lab=document.createElement("div");lab.className="section-label";lab.textContent=group==="Bridge"?"Main ship bridge":"Ship shuttle";card.appendChild(lab);
+      for(const r of ROLES.filter(x=>x.group===group)){const a=byKey.get(ship+"|"+r.name),row=document.createElement("div");row.className="slot "+(a?"taken":"open");row.innerHTML=a?`<div class="role">${esc(r.name)}</div><div class="station-status"><span class="status-tag taken">TAKEN</span><div class="assigned">${esc(a.name)}</div></div>`:`<div class="role">${esc(r.name)}</div><div class="station-status"><span class="status-tag open">OPEN</span><div class="assigned vacant">Unassigned</div></div>`;card.appendChild(row);}
+    }box.appendChild(card);
+  }
 }
 
 function choicesChanged(existing,p){return Boolean(existing)&&(existing.ship!==p.ship||JSON.stringify(existing.prefs||[])!==JSON.stringify(p.prefs||[]));}
@@ -227,23 +317,39 @@ function playerPayload(p,ownerUid,existing=null){
 }
 async function submitPlayer(e){
   e.preventDefault();if(!currentUser){setMessage($("#formMessage"),"Still connecting. Try again in a moment.","error");return;}if(locked&&currentUser.isAnonymous){setMessage($("#formMessage"),"Submissions are locked.","warn");return;}
-  const p=readPlayerForm(),err=validateLocal(p,currentUser.uid);if(err){setMessage($("#formMessage"),err,"error");return;}if(!myEntry&&players.length>=MAX_PLAYERS){setMessage($("#formMessage"),"All 28 places already have submissions. Ask the GM if something needs changing.","error");return;}
-  $("#submitBtn").disabled=true;try{const ref=doc(db,"players",currentUser.uid);await setDoc(ref,playerPayload(p,currentUser.uid,myEntry));setMessage($("#formMessage"),myEntry?"Your choices have been updated.":"Choices submitted successfully.","ok");clearPlayerForm(true);}catch(ex){setMessage($("#formMessage"),friendlyError(ex),"error");}finally{$("#submitBtn").disabled=false;applyLocked();}
+  let p=readPlayerForm();if(!p.name){setMessage($("#formMessage"),"Enter the name of the person being registered.","error");return;}
+  const key=normalizeName(p.name),saved=localProfiles[key],remote=remoteForName(p.name);
+  if(!activeProfile&&saved){if(!await activateLocalProfile(saved,false))return;p=readPlayerForm();}
+  if(!activeProfile&&remote){updateRegistrationBanner("blocked",remote.name);setMessage($("#formMessage"),"That person is already registered, but this browser does not own their entry. Use their original device or contact Smarty or Sarah.","error");return;}
+  let createdNow=false;
+  if(!activeProfile){if(players.length>=MAX_PLAYERS){setMessage($("#formMessage"),"All 28 places already have submissions. Contact Smarty or Sarah if something needs changing.","error");return;}try{const made=await createProfile(p.name);activeProfile=made.profile;activeContext=made.context;createdNow=true;saveActiveKey(key);}catch(ex){setMessage($("#formMessage"),friendlyError(ex),"error");return;}}
+  if(!activeContext){try{activeContext=await ensureProfileContext(activeProfile);}catch(ex){setMessage($("#formMessage"),friendlyError(ex),"error");return;}}
+  myEntry=players.find(x=>x.id===activeProfile.uid)||null;const err=validateLocal(p,activeProfile.uid);if(err){if(createdNow){delete localProfiles[key];saveLocalProfiles();setActiveProfile(null);}setMessage($("#formMessage"),err,"error");return;}
+  $("#submitBtn").disabled=true;try{const ref=doc(activeContext.db,"players",activeProfile.uid);await setDoc(ref,playerPayload(p,activeProfile.uid,myEntry));activeProfile.name=p.name;localProfiles[key]=activeProfile;saveLocalProfiles();saveActiveKey(key);$("#playerName").readOnly=true;updateRegistrationBanner("owned",p.name);setMessage($("#formMessage"),myEntry?`${p.name}'s choices have been updated.`:`${p.name} is now registered.`,"ok");$("#cancelPlayerEdit").classList.remove("hidden");$("#submitBtn").textContent=`Save ${p.name}'s choices`;}catch(ex){if(createdNow){delete localProfiles[key];saveLocalProfiles();setActiveProfile(null);}setMessage($("#formMessage"),friendlyError(ex),"error");}finally{$("#submitBtn").disabled=false;applyLocked();}
 }
+
+function startAnotherPlayer(){
+  const previous=myEntry?.name||activeProfile?.name||"the current person";activeProfile=null;activeContext=null;myEntry=null;saveActiveKey("");$("#playerForm").reset();$("#playerName").readOnly=false;setChecked($("#dislikes"),[]);syncFlexible("");$("#cancelPlayerEdit").classList.add("hidden");$("#submitBtn").textContent="Register this person";updateRegistrationBanner("new","");setMessage($("#formMessage"),`${previous}'s entry is saved. Ready to register the next person.`,"ok");$("#playerName").focus();renderMySummary();applyLocked();
+}
+
 function friendlyError(ex){const code=ex?.code||"";if(code.includes("permission-denied"))return "Firebase blocked that change. Check the security rules, or submissions may be locked.";if(code.includes("auth/invalid-credential"))return "Incorrect admin email or password.";if(code.includes("auth/too-many-requests"))return "Too many login attempts. Try again later.";return ex?.message||"Something went wrong.";}
 function startListeners(){
   if(unsubPlayers)unsubPlayers();if(unsubConfig)unsubConfig();
-  unsubPlayers=onSnapshot(collection(db,"players"),snap=>{players=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.name&&Array.isArray(p.prefs)&&Array.isArray(p.dislikes));$("#dataStatus").textContent="Shared data live";$("#dataStatus").className="pill live";renderState();},err=>{$("#dataStatus").textContent="Data error";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(err);});
+  unsubPlayers=onSnapshot(collection(db,"players"),snap=>{players=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.name&&Array.isArray(p.prefs)&&Array.isArray(p.dislikes));$("#dataStatus").textContent="Shared data live";$("#dataStatus").className="pill live";registerLegacyPrimaryIfNeeded();renderState();},err=>{$("#dataStatus").textContent="Data error";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(err);});
   unsubConfig=onSnapshot(doc(db,"config","app"),snap=>{locked=snap.exists()?Boolean(snap.data().locked):false;renderState();},err=>console.error(err));
 }
 async function waitForInitialAuth(){return await new Promise(resolve=>{let unsub=()=>{};unsub=onAuthStateChanged(auth,u=>{unsub();resolve(u);});});}
 async function boot(){
-  setupControls("");setupControls("admin");renderShips([]);
-  if(!configReady()){$("#dataStatus").textContent="Setup required";$("#dataStatus").className="pill locked";$("#boardNote").textContent="Firebase has not been configured yet. Open START-HERE.md.";$("#playerForm").querySelectorAll("input,select,button").forEach(x=>x.disabled=true);return;}
-  try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);let u=await waitForInitialAuth();if(!adminMode&&u&&!u.isAnonymous){await signOut(auth);u=null;}if(!u){const cred=await signInAnonymously(auth);u=cred.user;}currentUser=u;startListeners();if(adminMode&&u&&!u.isAnonymous)showAdminTools();}catch(ex){$("#dataStatus").textContent="Connection failed";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(ex);}
+  setupControls("");setupControls("admin");renderShips([]);updateRegistrationBanner("new","");
+  if(!configReady()){$("#dataStatus").textContent="Setup required";$("#dataStatus").className="pill locked";$("#boardNote").textContent="Firebase has not been configured yet.";$("#playerForm").querySelectorAll("input,select,button").forEach(x=>x.disabled=true);return;}
+  try{
+    app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);let u=await waitForInitialAuth();if(!adminMode&&u&&!u.isAnonymous){await signOut(auth);u=null;}if(!u){await setPersistence(auth,browserLocalPersistence);u=(await signInAnonymously(auth)).user;}currentUser=u;startListeners();
+    if(adminMode&&u&&!u.isAnonymous)showAdminTools();
+    if(!adminMode){const remembered=localStorage.getItem(ACTIVE_STORE)||"";if(remembered&&localProfiles[remembered])setTimeout(()=>activateLocalProfile(localProfiles[remembered],false),200);}
+  }catch(ex){$("#dataStatus").textContent="Connection failed";$("#dataStatus").className="pill locked";$("#boardNote").textContent=friendlyError(ex);}
 }
 
-$("#playerForm").addEventListener("submit",submitPlayer);$("#cancelPlayerEdit").addEventListener("click",()=>clearPlayerForm());
+$("#playerForm").addEventListener("submit",submitPlayer);$("#cancelPlayerEdit").addEventListener("click",startAnotherPlayer);$("#playerName").addEventListener("input",()=>{if(!$("#playerName").readOnly){updateRegistrationBanner("new",$("#playerName").value.trim());scheduleNameLookup();}});$("#playerName").addEventListener("blur",()=>resolveTypedName(true));
 $("#adminLoginForm").addEventListener("submit",async e=>{
   e.preventDefault();const email=$("#adminEmail").value.trim(),password=$("#adminPassword").value;if(!email||!password){setMessage($("#adminLoginMessage"),"Enter the admin email and password.","error");return;}
   try{const cred=await signInWithEmailAndPassword(auth,email,password);if(ADMIN_UID&&!ADMIN_UID.includes("PASTE_")&&cred.user.uid!==ADMIN_UID){await signOut(auth);const a=await signInAnonymously(auth);currentUser=a.user;throw new Error("That account is not the configured admin account.");}currentUser=cred.user;showAdminTools();setMessage($("#adminLoginMessage"),"");renderState();}catch(ex){setMessage($("#adminLoginMessage"),friendlyError(ex),"error");}

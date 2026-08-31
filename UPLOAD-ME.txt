@@ -1,0 +1,1 @@
+Replace index.html in the existing DJSmartyP/Crew-assignment- GitHub repo with this version. No Firebase or Firestore changes are needed.
