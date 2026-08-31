@@ -1,1 +1,1 @@
-Replace index.html in DJSmartyP/Crew-assignment- with this file. No Firebase changes are needed. Main ship roles are now grouped as Command, Operations, Science and Engineering; shuttle roles remain together.
+Replace index.html in DJSmartyP/Crew-assignment- with this file. No Firebase or Firestore changes are needed.
