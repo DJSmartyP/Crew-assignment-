@@ -373,15 +373,16 @@ function renderShips(assignments){
 }
 
 
+
 function sarahPdfTeamPalette(group){
   const map={
-    Command:{fill:"#F2BC48",text:"#2E2208",accent:"#F7D987"},
-    Operations:{fill:"#E88937",text:"#301A08",accent:"#FFC18D"},
-    Science:{fill:"#41D3EB",text:"#062B35",accent:"#A7F1FC"},
-    Engineering:{fill:"#49BA7E",text:"#082D1D",accent:"#A6EFC8"},
-    Shuttle:{fill:"#9D6FDC",text:"#23133C",accent:"#DCC8F9"}
+    Command:{fill:"#F2BC48",text:"#241A05",accent:"#FFD979",dark:"#7B5A14"},
+    Operations:{fill:"#E88937",text:"#271205",accent:"#FFB77C",dark:"#7C3B10"},
+    Science:{fill:"#41D3EB",text:"#05212A",accent:"#9CEAF6",dark:"#176879"},
+    Engineering:{fill:"#49BA7E",text:"#061E13",accent:"#9EE6BF",dark:"#1B7047"},
+    Shuttle:{fill:"#9D6FDC",text:"#1E0F34",accent:"#D6BDF5",dark:"#563688"}
   };
-  return map[group]||{fill:"#B1C2D0",text:"#172531",accent:"#E1E9EF"};
+  return map[group]||{fill:"#AABCC9",text:"#10202C",accent:"#DDE6EC",dark:"#526673"};
 }
 function sarahBlobToDataUrl(blob){
   return new Promise((resolve,reject)=>{
@@ -408,10 +409,10 @@ function sarahLoadCanvasImage(dataUrl){
     image.src=dataUrl;
   });
 }
-function sarahCanvasFont(ctx,size,weight="600",family="Rajdhani"){
+function sarahCanvasFont(ctx,size,weight="600",family="Orbitron"){
   ctx.font=`${weight} ${size}px "${family}", sans-serif`;
 }
-function sarahDrawText(ctx,text,x,y,{size=28,weight="600",family="Rajdhani",colour="#172531",align="left",baseline="alphabetic"}={}){
+function sarahDrawText(ctx,text,x,y,{size=28,weight="600",family="Orbitron",colour="#EAF4FA",align="left",baseline="alphabetic"}={}){
   sarahCanvasFont(ctx,size,weight,family);
   ctx.fillStyle=colour;
   ctx.textAlign=align;
@@ -442,7 +443,7 @@ function sarahFillRoundRect(ctx,x,y,w,h,r,fill,stroke=null,lineWidth=1){
   if(fill){ctx.fillStyle=fill;ctx.fill();}
   if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}
 }
-function sarahHudCorners(ctx,x,y,w,h,colour="rgba(65,211,235,.55)",length=30,line=3){
+function sarahHudCorners(ctx,x,y,w,h,colour="rgba(65,211,235,.5)",length=30,line=3){
   ctx.strokeStyle=colour;ctx.lineWidth=line;ctx.beginPath();
   ctx.moveTo(x,y+length);ctx.lineTo(x,y);ctx.lineTo(x+length,y);
   ctx.moveTo(x+w-length,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+length);
@@ -457,7 +458,7 @@ function sarahDrawHexBadge(ctx,cx,cy,r,label,accent="#41D3EB"){
     const px=Math.cos(a)*r,py=Math.sin(a)*r;
     if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
   }
-  ctx.closePath();ctx.fillStyle="#0A2034";ctx.fill();
+  ctx.closePath();ctx.fillStyle="#081A2A";ctx.fill();
   ctx.strokeStyle=accent;ctx.lineWidth=4;ctx.stroke();
   ctx.beginPath();ctx.arc(0,0,r*.68,0,Math.PI*2);
   ctx.strokeStyle="rgba(255,255,255,.16)";ctx.lineWidth=2;ctx.stroke();
@@ -465,7 +466,8 @@ function sarahDrawHexBadge(ctx,cx,cy,r,label,accent="#41D3EB"){
   ctx.restore();
 }
 function sarahCircuitDecoration(ctx,w,h){
-  ctx.save();ctx.strokeStyle="rgba(65,211,235,.10)";ctx.lineWidth=2;
+  ctx.save();
+  ctx.strokeStyle="rgba(65,211,235,.10)";ctx.lineWidth=2;
   const paths=[
     [[80,410],[210,410],[210,460],[355,460]],
     [[w-80,420],[w-250,420],[w-250,505],[w-390,505]],
@@ -473,7 +475,7 @@ function sarahCircuitDecoration(ctx,w,h){
     [[w-100,h-260],[w-260,h-260],[w-260,h-335],[w-390,h-335]]
   ];
   for(const pts of paths){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke();}
-  ctx.fillStyle="rgba(242,188,72,.20)";
+  ctx.fillStyle="rgba(242,188,72,.18)";
   for(const [x,y] of [[355,460],[w-390,505],[360,h-365],[w-390,h-335]]){ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 }
@@ -484,7 +486,6 @@ async function generateSarahCrewPdf(){
   const button=$("#adminPdfBtn");
   const message=$("#adminMessage");
 
-  // Button is hidden with the signed-in admin panel, but also enforce it here.
   if(!currentUser||currentUser.isAnonymous||currentUser.uid!==ADMIN_UID){
     setMessage(message,"Admin sign-in is required to export the crew PDF.","error");
     return;
@@ -503,22 +504,18 @@ async function generateSarahCrewPdf(){
     if(document.fonts?.ready){
       await document.fonts.ready;
       await Promise.allSettled([
-        document.fonts.load('800 34px Orbitron'),
-        document.fonts.load('700 24px Orbitron'),
-        document.fonts.load('600 28px Rajdhani'),
-        document.fonts.load('700 28px Rajdhani')
+        document.fonts.load('800 44px Orbitron'),
+        document.fonts.load('700 38px Orbitron'),
+        document.fonts.load('600 32px Orbitron'),
+        document.fonts.load('700 40px Orbitron')
       ]);
     }
 
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
 
-    const [bannerData,iconData]=await Promise.all([
-      sarahPdfImageData("./site-header-banner.png"),
-      sarahPdfImageData("./site-icon.png")
-    ]);
+    const bannerData=await sarahPdfImageData("./site-header-banner.png");
     const banner=await sarahLoadCanvasImage(bannerData).catch(()=>null);
-    const icon=await sarahLoadCanvasImage(iconData).catch(()=>null);
 
     const shipImages={};
     for(const ship of SHIPS){
@@ -537,36 +534,39 @@ async function generateSarahCrewPdf(){
       const ship=SHIPS[pageIndex];
       const assigned=currentBoard.assignments.filter(a=>a.ship===ship);
       const shipImage=shipImages[ship];
+      const shipAccent=ship==="Havock"?"#A978E8":"#41D3EB";
+
       const canvas=document.createElement("canvas");
       canvas.width=W;canvas.height=H;
       const ctx=canvas.getContext("2d",{alpha:false});
       ctx.imageSmoothingEnabled=true;
       ctx.imageSmoothingQuality="high";
 
-      // Print-friendly dossier background.
+      // Clean light technical-document body, with the dark sci-fi masthead retained.
       ctx.fillStyle="#F5F8FA";ctx.fillRect(0,0,W,H);
-      const glow=ctx.createLinearGradient(0,0,W,H);
-      glow.addColorStop(0,"rgba(65,211,235,.055)");
-      glow.addColorStop(.48,"rgba(255,255,255,0)");
-      glow.addColorStop(1,"rgba(157,111,220,.045)");
-      ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+      const pageGlow=ctx.createLinearGradient(0,0,W,H);
+      pageGlow.addColorStop(0,"rgba(65,211,235,.055)");
+      pageGlow.addColorStop(.48,"rgba(255,255,255,0)");
+      pageGlow.addColorStop(1,"rgba(157,111,220,.04)");
+      ctx.fillStyle=pageGlow;ctx.fillRect(0,0,W,H);
       sarahCircuitDecoration(ctx,W,H);
 
-      // Sci-fi masthead.
+      // Masthead.
       const headerH=Y(58);
       const header=ctx.createLinearGradient(0,0,W,headerH);
-      header.addColorStop(0,"#04101E");
-      header.addColorStop(.56,"#071D31");
-      header.addColorStop(1,ship==="Havock"?"#211B43":"#08253C");
+      header.addColorStop(0,"#020A12");
+      header.addColorStop(.58,"#082239");
+      header.addColorStop(1,ship==="Havock"?"#22183E":"#082C45");
       ctx.fillStyle=header;ctx.fillRect(0,0,W,headerH);
       ctx.fillStyle="#F2BC48";ctx.fillRect(0,0,X(1.5),headerH);
-      ctx.fillStyle="#41D3EB";ctx.fillRect(X(1.5),0,X(.55),headerH);
+      ctx.fillStyle=shipAccent;ctx.fillRect(X(1.5),0,X(.55),headerH);
 
-      ctx.save();ctx.strokeStyle="rgba(65,211,235,.10)";ctx.lineWidth=1;
+      ctx.save();
+      ctx.strokeStyle="rgba(112,221,245,.075)";ctx.lineWidth=1;
       for(let x=X(10);x<W;x+=X(14)){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,headerH);ctx.stroke();}
       for(let y=Y(8);y<headerH;y+=Y(8)){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
       ctx.restore();
-      sarahHudCorners(ctx,X(7),Y(5),W-X(14),headerH-Y(10));
+      sarahHudCorners(ctx,X(7),Y(5),W-X(14),headerH-Y(10),ship==="Havock"?"rgba(169,120,232,.60)":"rgba(65,211,235,.60)");
 
       if(banner){
         const maxW=X(116),maxH=Y(34);
@@ -577,7 +577,6 @@ async function generateSarahCrewPdf(){
         sarahDrawText(ctx,"DEPLOYMENT PLANNER",X(12),Y(26),{size:38,weight:"700",family:"Orbitron",colour:"#41D3EB"});
       }
 
-      // Ship crest.
       if(shipImage){
         const r=X(11),cx=W-X(22),cy=Y(17);
         ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
@@ -585,81 +584,104 @@ async function generateSarahCrewPdf(){
         const dw=shipImage.width*ratio,dh=shipImage.height*ratio;
         ctx.drawImage(shipImage,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
         ctx.beginPath();ctx.arc(cx,cy,r+4,0,Math.PI*2);
-        ctx.strokeStyle=ship==="Havock"?"#9D6FDC":"#41D3EB";ctx.lineWidth=3;ctx.stroke();
+        ctx.strokeStyle=shipAccent;ctx.lineWidth=3;ctx.stroke();
       }else{
-        sarahDrawHexBadge(ctx,W-X(22),Y(17),X(10),ship==="Takanami"?"TKN":"HVK",ship==="Havock"?"#9D6FDC":"#41D3EB");
+        sarahDrawHexBadge(ctx,W-X(22),Y(17),X(10),ship==="Takanami"?"TKN":"HVK",shipAccent);
       }
 
-      sarahDrawText(ctx,`SHIP ${String(pageIndex+1).padStart(2,"0")} // ${ship.toUpperCase()}`,W-X(10),Y(35.5),{size:39,weight:"800",family:"Orbitron",colour:"#F7FBFE",align:"right"});
-      sarahDrawText(ctx,`${assigned.length} CREW ASSIGNED`,W-X(10),Y(42.5),{size:25,weight:"700",family:"Orbitron",colour:"#AFC7D8",align:"right"});
-      sarahDrawText(ctx,"BIRTHDAY MISSION // 16 DECEMBER",W-X(10),Y(49.5),{size:20,weight:"600",family:"Orbitron",colour:"#688BA3",align:"right"});
+      sarahDrawText(ctx,`SHIP ${String(pageIndex+1).padStart(2,"0")} // ${ship.toUpperCase()}`,W-X(10),Y(35.5),{size:46,weight:"800",family:"Orbitron",colour:"#F7FBFE",align:"right"});
+      sarahDrawText(ctx,`${assigned.length} CREW ASSIGNED`,W-X(10),Y(42.5),{size:29,weight:"700",family:"Orbitron",colour:"#C1D2DF",align:"right"});
+      sarahDrawText(ctx,"BIRTHDAY MISSION // 16 DECEMBER",W-X(10),Y(49.5),{size:22,weight:"700",family:"Orbitron",colour:"#7899AF",align:"right"});
 
-      sarahDrawText(ctx,"CREW POSITIONS OPTIMISED BY INTERSTELLAR DEPLOYMENT PLANNER",X(12.5),Y(48.8),{size:21,weight:"700",family:"Orbitron",colour:"#F2BC48"});
+      sarahDrawText(ctx,"CREW POSITIONS OPTIMISED BY INTERSTELLAR DEPLOYMENT PLANNER",X(12.5),Y(48.8),{size:24,weight:"800",family:"Orbitron",colour:"#F2BC48"});
       const title="SARAH'S MEGA MISSION";
-      const titleSize=sarahFitText(ctx,title,X(118),51,30,"800","Orbitron");
-      sarahDrawText(ctx,title,X(12.5),Y(56),{size:titleSize,weight:"800",family:"Orbitron",colour:"#F8FBFD"});
+      const titleSize=sarahFitText(ctx,title,X(118),58,36,"800","Orbitron");
+      sarahDrawText(ctx,title,X(12.5),Y(56),{size:titleSize,weight:"800",family:"Orbitron",colour:"#FFFFFF"});
 
-      // Mission metadata strip.
+      // Dark metadata strip.
       ctx.fillStyle="#EDF3F6";ctx.fillRect(0,Y(58),W,Y(16));
+      ctx.strokeStyle="rgba(65,211,235,.20)";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(0,Y(74));ctx.lineTo(W,Y(74));ctx.stroke();
+
       const meta=[
         {x:13,label:"MISSION DATE",value:"16 December"},
-        {x:63,label:"SHIPS",value:"Takanami + Havock"},
+        {x:63,label:"DEPLOYMENT SHIPS",value:"Takanami + Havock"},
         {x:132,label:"TOTAL CREW",value:String(totalCrew)},
         {x:166,label:"CHOICES",value:locked?"CLOSED":"OPEN"}
       ];
       for(const item of meta){
-        sarahDrawText(ctx,item.label,X(item.x),Y(64.4),{size:18,weight:"700",family:"Orbitron",colour:"#718697"});
-        sarahDrawText(ctx,item.value,X(item.x),Y(70.2),{size:28,weight:"700",family:"Rajdhani",colour:item.label==="CHOICES"?(locked?"#9B3E4A":"#287F58"):"#172531"});
+        sarahDrawText(ctx,item.label,X(item.x),Y(64.4),{size:22,weight:"800",family:"Orbitron",colour:"#718697"});
+        sarahDrawText(ctx,item.value,X(item.x),Y(70.2),{size:31,weight:"700",family:"Orbitron",colour:item.label==="CHOICES"?(locked?"#9B3E4A":"#287F58"):"#172531"});
       }
 
       let y=Y(82);
-      sarahDrawText(ctx,`${ship.toUpperCase()} // CREW MANIFEST`,margin,y,{size:34,weight:"800",family:"Orbitron",colour:"#071727"});
-      sarahDrawText(ctx,"CURRENT OPTIMISED ASSIGNMENT",W-margin,y,{size:19,weight:"700",family:"Orbitron",colour:"#168CA0",align:"right"});
-      ctx.strokeStyle="#41D3EB";ctx.lineWidth=5;
+      sarahDrawText(ctx,`${ship.toUpperCase()} - CREW MANIFEST`,margin,y,{size:39,weight:"800",family:"Orbitron",colour:"#071727"});
+      sarahDrawText(ctx,"CURRENT OPTIMISED ASSIGNMENT",W-margin,y,{size:21,weight:"800",family:"Orbitron",colour:shipAccent,align:"right"});
+      ctx.strokeStyle=shipAccent;ctx.lineWidth=5;
       ctx.beginPath();ctx.moveTo(margin,y+Y(3));ctx.lineTo(W-margin,y+Y(3));ctx.stroke();
       y+=Y(8.5);
 
       for(const group of TEAM_ORDER){
         const palette=sarahPdfTeamPalette(group);
         const roles=ROLES.filter(r=>r.group===group);
-        const headH=Y(7);
+        const headH=Y(7.35);
+
+        // Team bar.
         sarahFillRoundRect(ctx,margin,y,W-margin*2,headH,X(1.4),palette.fill);
-        sarahDrawText(ctx,TEAM_LABELS[group].toUpperCase(),margin+X(3.2),y+headH*.57,{size:23,weight:"800",family:"Orbitron",colour:palette.text,baseline:"middle"});
+        sarahDrawText(ctx,TEAM_LABELS[group].toUpperCase(),margin+X(3.2),y+headH*.57,{size:27,weight:"800",family:"Orbitron",colour:palette.text,baseline:"middle"});
         const groupAssigned=roles.filter(r=>sarahAssignmentForRole(ship,r.name)).length;
-        sarahDrawText(ctx,`${groupAssigned} / ${roles.length} ASSIGNED`,W-margin-X(3.2),y+headH*.57,{size:17,weight:"700",family:"Orbitron",colour:palette.text,align:"right",baseline:"middle"});
-        y+=Y(8.3);
+        sarahDrawText(ctx,`${groupAssigned} / ${roles.length} ASSIGNED`,W-margin-X(3.2),y+headH*.57,{size:19,weight:"800",family:"Orbitron",colour:palette.text,align:"right",baseline:"middle"});
+        y+=Y(8.45);
 
         for(const r of roles){
           const a=sarahAssignmentForRole(ship,r.name);
-          const rowH=Y(8);
-          sarahFillRoundRect(ctx,margin,y,W-margin*2,rowH-Y(.7),X(.9),a?"#FFFFFF":"#F1F5F7","#D7E2E8",2);
-          ctx.fillStyle=palette.fill;ctx.fillRect(margin,y,X(1.25),rowH-Y(.7));
-          sarahDrawText(ctx,r.name,margin+X(5.2),y+(rowH-Y(.8))/2,{size:29,weight:"700",family:"Rajdhani",colour:a?"#172531":"#788692",baseline:"middle"});
-          sarahDrawText(ctx,a?.name||"Unassigned",W-margin-X(5.2),y+(rowH-Y(.8))/2,{size:30,weight:a?"700":"600",family:a?"Orbitron":"Rajdhani",colour:a?"#102334":"#82909A",align:"right",baseline:"middle"});
+          const rowH=Y(8.35);
+          const cardFill=a?"#FFFFFF":"#F1F5F7";
+          const border=a?"#D7E2E8":"#D7E2E8";
+
+          sarahFillRoundRect(ctx,margin,y,W-margin*2,rowH-Y(.45),X(.9),cardFill,border,2);
+          ctx.fillStyle=palette.fill;ctx.fillRect(margin,y,X(1.25),rowH-Y(.45));
+
+          sarahDrawText(ctx,r.name,margin+X(5.2),y+(rowH-Y(.45))/2,{size:33,weight:"700",family:"Orbitron",colour:a?"#172531":"#788692",baseline:"middle"});
+          sarahDrawText(ctx,a?.name||"Unassigned",W-margin-X(5.2),y+(rowH-Y(.45))/2,{size:35,weight:a?"700":"600",family:"Orbitron",colour:a?"#102334":"#82909A",align:"right",baseline:"middle"});
+
           if(a?.forced){
-            sarahDrawText(ctx,"LOCKED OVERRIDE",W-margin-X(5.2),y+Y(7.2),{size:13,weight:"700",family:"Orbitron",colour:"#9D6FDC",align:"right"});
+            sarahDrawText(ctx,"LOCKED OVERRIDE",W-margin-X(5.2),y+Y(7.2),{size:15,weight:"800",family:"Orbitron",colour:"#7A48AF",align:"right"});
           }
-          y+=Y(8.8);
+          y+=Y(8.72);
         }
-        y+=Y(1.7);
+        y+=Y(1.15);
       }
 
-      // Footer / system seal.
+      // Footer.
       ctx.strokeStyle="#D7E1E8";ctx.lineWidth=2;
       ctx.beginPath();ctx.moveTo(margin,H-Y(15));ctx.lineTo(W-margin,H-Y(15));ctx.stroke();
-      if(icon)ctx.drawImage(icon,margin,H-Y(13),X(8),X(8));
-      sarahDrawText(ctx,"INTERSTELLAR DEPLOYMENT PLANNER",margin+(icon?X(10):0),H-Y(8.8),{size:20,weight:"800",family:"Orbitron",colour:"#071727"});
-      sarahDrawText(ctx,"SYSTEM-GENERATED CREW MANIFEST",margin+(icon?X(10):0),H-Y(5.2),{size:16,weight:"700",family:"Orbitron",colour:"#728596"});
-      sarahDrawText(ctx,`GENERATED ${generated.toUpperCase()}`,W-margin,H-Y(8.8),{size:16,weight:"700",family:"Orbitron",colour:"#728596",align:"right"});
-      sarahDrawText(ctx,`PAGE ${pageIndex+1} / ${SHIPS.length}`,W-margin,H-Y(5.2),{size:16,weight:"700",family:"Orbitron",colour:"#728596",align:"right"});
 
-      const image=canvas.toDataURL("image/jpeg",.94);
+      if(shipImage){
+        const footerSize=X(8);
+        ctx.save();
+        ctx.beginPath();ctx.arc(margin+footerSize/2,H-Y(9),footerSize/2,0,Math.PI*2);ctx.clip();
+        const ratio=Math.max(footerSize/shipImage.width,footerSize/shipImage.height);
+        const dw=shipImage.width*ratio,dh=shipImage.height*ratio;
+        ctx.drawImage(shipImage,margin+footerSize/2-dw/2,H-Y(9)-dh/2,dw,dh);
+        ctx.restore();
+        ctx.beginPath();ctx.arc(margin+footerSize/2,H-Y(9),footerSize/2+2,0,Math.PI*2);
+        ctx.strokeStyle=shipAccent;ctx.lineWidth=2;ctx.stroke();
+      }else{
+        sarahDrawHexBadge(ctx,margin+X(4),H-Y(9),X(4),ship==="Takanami"?"TKN":"HVK",shipAccent);
+      }
+      sarahDrawText(ctx,"INTERSTELLAR DEPLOYMENT PLANNER",margin+X(10),H-Y(8.8),{size:22,weight:"800",family:"Orbitron",colour:"#071727"});
+      sarahDrawText(ctx,`${ship.toUpperCase()} // SYSTEM-GENERATED CREW MANIFEST`,margin+X(10),H-Y(5.2),{size:18,weight:"700",family:"Orbitron",colour:"#728596"});
+      sarahDrawText(ctx,`GENERATED ${generated.toUpperCase()}`,W-margin,H-Y(8.8),{size:18,weight:"700",family:"Orbitron",colour:"#728596",align:"right"});
+      sarahDrawText(ctx,`PAGE ${pageIndex+1} / ${SHIPS.length}`,W-margin,H-Y(5.2),{size:18,weight:"700",family:"Orbitron",colour:shipAccent,align:"right"});
+
+      const image=canvas.toDataURL("image/jpeg",.95);
       if(pageIndex>0)pdf.addPage();
       pdf.addImage(image,"JPEG",0,0,210,297,undefined,"FAST");
     }
 
     pdf.save("Sarahs-Mega-Mission_Crew-Assignments.pdf");
-    setMessage(message,"Crew PDF downloaded: one page for Takanami and one for Havock.","ok");
+    setMessage(message,"Crew PDF downloaded: one navy-blue page for Takanami and one for Havock.","ok");
   }catch(ex){
     console.error("Sarah PDF generation failed",ex);
     setMessage(message,`Could not generate PDF: ${ex?.message||ex}`,"error");
