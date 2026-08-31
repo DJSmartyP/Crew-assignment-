@@ -1,1 +1,1 @@
-Replace index.html in DJSmartyP/Crew-assignment- with this version, commit, and let GitHub Pages redeploy. No Firebase changes are needed.
+Replace index.html in DJSmartyP/Crew-assignment- with this file. Organiser fixed assignments remain active but are no longer identifiable on the player-facing roster. No Firebase changes are needed.
