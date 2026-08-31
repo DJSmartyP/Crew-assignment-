@@ -1,1 +1,3 @@
-Replace index.html in DJSmartyP/Crew-assignment- with this file. No Firebase or Firestore changes are needed.
+Replace index.html in DJSmartyP/Crew-assignment- with this file and commit. No Firebase changes are needed.
+
+Changes: station names now use their subteam colour; player instructions now clearly explain that self-editing only works on the same device/browser used to register.
