@@ -105,7 +105,7 @@ header p{margin:10px 0 0;color:var(--muted);font-size:15px}.top-right{display:fl
 
       <section class="panel admin-only hidden" id="adminToolsPanel">
         <h3>Admin controls</h3>
-        <div class="actions"><button id="adminAddBtn" class="btn secondary" type="button">Add someone</button><button id="lockBtn" class="btn secondary" type="button">Close choices</button><button id="resetBtn" class="btn danger" type="button">Clear all entries</button><button id="adminLogout" class="btn secondary" type="button">Sign out</button></div>
+        <div class="actions"><button id="adminPdfBtn" class="btn primary" type="button">Export crew PDF</button><button id="adminAddBtn" class="btn secondary" type="button">Add someone</button><button id="lockBtn" class="btn secondary" type="button">Close choices</button><button id="resetBtn" class="btn danger" type="button">Clear all entries</button><button id="adminLogout" class="btn secondary" type="button">Sign out</button></div>
         <div id="adminMessage" class="message" aria-live="polite"></div>
         <div id="adminMetrics" class="metrics" style="margin-top:12px"></div>
         <div id="adminEntries" class="admin-table"></div>
@@ -136,6 +136,7 @@ header p{margin:10px 0 0;color:var(--muted);font-size:15px}.top-right{display:fl
   <div class="footer">Sarah's Mega Mission · 16 December · Current crew suggestions can change until everyone has responded. <a class="admin-link" href="?admin=1" aria-label="Open organiser controls">organiser</a></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script type="module">
 import { firebaseConfig, ADMIN_UID } from "./firebase-config.js";
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -371,6 +372,303 @@ function renderShips(assignments){
   }
 }
 
+
+function sarahPdfTeamPalette(group){
+  const map={
+    Command:{fill:"#F2BC48",text:"#2E2208",accent:"#F7D987"},
+    Operations:{fill:"#E88937",text:"#301A08",accent:"#FFC18D"},
+    Science:{fill:"#41D3EB",text:"#062B35",accent:"#A7F1FC"},
+    Engineering:{fill:"#49BA7E",text:"#082D1D",accent:"#A6EFC8"},
+    Shuttle:{fill:"#9D6FDC",text:"#23133C",accent:"#DCC8F9"}
+  };
+  return map[group]||{fill:"#B1C2D0",text:"#172531",accent:"#E1E9EF"};
+}
+function sarahBlobToDataUrl(blob){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(blob);
+  });
+}
+async function sarahPdfImageData(url){
+  if(!url)return null;
+  try{
+    const response=await fetch(url,{mode:"cors",cache:"force-cache"});
+    if(!response.ok)return null;
+    return await sarahBlobToDataUrl(await response.blob());
+  }catch(_e){return null;}
+}
+function sarahLoadCanvasImage(dataUrl){
+  return new Promise((resolve,reject)=>{
+    if(!dataUrl){resolve(null);return;}
+    const image=new Image();
+    image.onload=()=>resolve(image);
+    image.onerror=()=>reject(new Error("Image could not be loaded"));
+    image.src=dataUrl;
+  });
+}
+function sarahCanvasFont(ctx,size,weight="600",family="Rajdhani"){
+  ctx.font=`${weight} ${size}px "${family}", sans-serif`;
+}
+function sarahDrawText(ctx,text,x,y,{size=28,weight="600",family="Rajdhani",colour="#172531",align="left",baseline="alphabetic"}={}){
+  sarahCanvasFont(ctx,size,weight,family);
+  ctx.fillStyle=colour;
+  ctx.textAlign=align;
+  ctx.textBaseline=baseline;
+  ctx.fillText(String(text??""),x,y);
+}
+function sarahFitText(ctx,text,maxWidth,startSize,minSize,weight="700",family="Orbitron"){
+  let size=startSize;
+  while(size>minSize){
+    sarahCanvasFont(ctx,size,weight,family);
+    if(ctx.measureText(String(text??"")).width<=maxWidth)break;
+    size--;
+  }
+  return size;
+}
+function sarahRoundRectPath(ctx,x,y,w,h,r){
+  const rr=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+function sarahFillRoundRect(ctx,x,y,w,h,r,fill,stroke=null,lineWidth=1){
+  sarahRoundRectPath(ctx,x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}
+}
+function sarahHudCorners(ctx,x,y,w,h,colour="rgba(65,211,235,.55)",length=30,line=3){
+  ctx.strokeStyle=colour;ctx.lineWidth=line;ctx.beginPath();
+  ctx.moveTo(x,y+length);ctx.lineTo(x,y);ctx.lineTo(x+length,y);
+  ctx.moveTo(x+w-length,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+length);
+  ctx.moveTo(x,y+h-length);ctx.lineTo(x,y+h);ctx.lineTo(x+length,y+h);
+  ctx.moveTo(x+w-length,y+h);ctx.lineTo(x+w,y+h);ctx.lineTo(x+w,y+h-length);
+  ctx.stroke();
+}
+function sarahDrawHexBadge(ctx,cx,cy,r,label,accent="#41D3EB"){
+  ctx.save();ctx.translate(cx,cy);ctx.beginPath();
+  for(let i=0;i<6;i++){
+    const a=-Math.PI/2+i*Math.PI/3;
+    const px=Math.cos(a)*r,py=Math.sin(a)*r;
+    if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+  }
+  ctx.closePath();ctx.fillStyle="#0A2034";ctx.fill();
+  ctx.strokeStyle=accent;ctx.lineWidth=4;ctx.stroke();
+  ctx.beginPath();ctx.arc(0,0,r*.68,0,Math.PI*2);
+  ctx.strokeStyle="rgba(255,255,255,.16)";ctx.lineWidth=2;ctx.stroke();
+  sarahDrawText(ctx,label,0,4,{size:Math.round(r*.48),weight:"800",family:"Orbitron",colour:"#F7FBFE",align:"center",baseline:"middle"});
+  ctx.restore();
+}
+function sarahCircuitDecoration(ctx,w,h){
+  ctx.save();ctx.strokeStyle="rgba(65,211,235,.10)";ctx.lineWidth=2;
+  const paths=[
+    [[80,410],[210,410],[210,460],[355,460]],
+    [[w-80,420],[w-250,420],[w-250,505],[w-390,505]],
+    [[95,h-310],[245,h-310],[245,h-365],[360,h-365]],
+    [[w-100,h-260],[w-260,h-260],[w-260,h-335],[w-390,h-335]]
+  ];
+  for(const pts of paths){ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke();}
+  ctx.fillStyle="rgba(242,188,72,.20)";
+  for(const [x,y] of [[355,460],[w-390,505],[360,h-365],[w-390,h-335]]){ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();}
+  ctx.restore();
+}
+function sarahAssignmentForRole(ship,role){
+  return currentBoard.assignments.find(a=>a.ship===ship&&a.role===role)||null;
+}
+async function generateSarahCrewPdf(){
+  const button=$("#adminPdfBtn");
+  const message=$("#adminMessage");
+
+  // Button is hidden with the signed-in admin panel, but also enforce it here.
+  if(!currentUser||currentUser.isAnonymous||currentUser.uid!==ADMIN_UID){
+    setMessage(message,"Admin sign-in is required to export the crew PDF.","error");
+    return;
+  }
+  if(!window.jspdf?.jsPDF){
+    setMessage(message,"PDF generator did not load. Refresh the page and try again.","error");
+    return;
+  }
+
+  const previous=button.textContent;
+  button.disabled=true;
+  button.textContent="Generating PDF…";
+  setMessage(message,"Building two-page crew manifest…");
+
+  try{
+    if(document.fonts?.ready){
+      await document.fonts.ready;
+      await Promise.allSettled([
+        document.fonts.load('800 34px Orbitron'),
+        document.fonts.load('700 24px Orbitron'),
+        document.fonts.load('600 28px Rajdhani'),
+        document.fonts.load('700 28px Rajdhani')
+      ]);
+    }
+
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({orientation:"portrait",unit:"mm",format:"a4",compress:true});
+
+    const [bannerData,iconData]=await Promise.all([
+      sarahPdfImageData("./site-header-banner.png"),
+      sarahPdfImageData("./site-icon.png")
+    ]);
+    const banner=await sarahLoadCanvasImage(bannerData).catch(()=>null);
+    const icon=await sarahLoadCanvasImage(iconData).catch(()=>null);
+
+    const shipImages={};
+    for(const ship of SHIPS){
+      const data=await sarahPdfImageData(SHIP_BADGES[ship]);
+      shipImages[ship]=await sarahLoadCanvasImage(data).catch(()=>null);
+    }
+
+    const W=1654,H=2339;
+    const sx=W/210,sy=H/297;
+    const X=mm=>mm*sx,Y=mm=>mm*sy;
+    const margin=X(12.5);
+    const totalCrew=currentBoard.assignments.length;
+    const generated=new Intl.DateTimeFormat("en-GB",{dateStyle:"medium",timeStyle:"short"}).format(new Date());
+
+    for(let pageIndex=0;pageIndex<SHIPS.length;pageIndex++){
+      const ship=SHIPS[pageIndex];
+      const assigned=currentBoard.assignments.filter(a=>a.ship===ship);
+      const shipImage=shipImages[ship];
+      const canvas=document.createElement("canvas");
+      canvas.width=W;canvas.height=H;
+      const ctx=canvas.getContext("2d",{alpha:false});
+      ctx.imageSmoothingEnabled=true;
+      ctx.imageSmoothingQuality="high";
+
+      // Print-friendly dossier background.
+      ctx.fillStyle="#F5F8FA";ctx.fillRect(0,0,W,H);
+      const glow=ctx.createLinearGradient(0,0,W,H);
+      glow.addColorStop(0,"rgba(65,211,235,.055)");
+      glow.addColorStop(.48,"rgba(255,255,255,0)");
+      glow.addColorStop(1,"rgba(157,111,220,.045)");
+      ctx.fillStyle=glow;ctx.fillRect(0,0,W,H);
+      sarahCircuitDecoration(ctx,W,H);
+
+      // Sci-fi masthead.
+      const headerH=Y(58);
+      const header=ctx.createLinearGradient(0,0,W,headerH);
+      header.addColorStop(0,"#04101E");
+      header.addColorStop(.56,"#071D31");
+      header.addColorStop(1,ship==="Havock"?"#211B43":"#08253C");
+      ctx.fillStyle=header;ctx.fillRect(0,0,W,headerH);
+      ctx.fillStyle="#F2BC48";ctx.fillRect(0,0,X(1.5),headerH);
+      ctx.fillStyle="#41D3EB";ctx.fillRect(X(1.5),0,X(.55),headerH);
+
+      ctx.save();ctx.strokeStyle="rgba(65,211,235,.10)";ctx.lineWidth=1;
+      for(let x=X(10);x<W;x+=X(14)){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,headerH);ctx.stroke();}
+      for(let y=Y(8);y<headerH;y+=Y(8)){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+      ctx.restore();
+      sarahHudCorners(ctx,X(7),Y(5),W-X(14),headerH-Y(10));
+
+      if(banner){
+        const maxW=X(116),maxH=Y(34);
+        const ratio=Math.min(maxW/banner.width,maxH/banner.height);
+        ctx.drawImage(banner,X(10),Y(3.5),banner.width*ratio,banner.height*ratio);
+      }else{
+        sarahDrawText(ctx,"INTERSTELLAR",X(12),Y(17),{size:86,weight:"800",family:"Orbitron",colour:"#F7FBFE"});
+        sarahDrawText(ctx,"DEPLOYMENT PLANNER",X(12),Y(26),{size:38,weight:"700",family:"Orbitron",colour:"#41D3EB"});
+      }
+
+      // Ship crest.
+      if(shipImage){
+        const r=X(11),cx=W-X(22),cy=Y(17);
+        ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+        const ratio=Math.max((r*2)/shipImage.width,(r*2)/shipImage.height);
+        const dw=shipImage.width*ratio,dh=shipImage.height*ratio;
+        ctx.drawImage(shipImage,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
+        ctx.beginPath();ctx.arc(cx,cy,r+4,0,Math.PI*2);
+        ctx.strokeStyle=ship==="Havock"?"#9D6FDC":"#41D3EB";ctx.lineWidth=3;ctx.stroke();
+      }else{
+        sarahDrawHexBadge(ctx,W-X(22),Y(17),X(10),ship==="Takanami"?"TKN":"HVK",ship==="Havock"?"#9D6FDC":"#41D3EB");
+      }
+
+      sarahDrawText(ctx,`SHIP ${String(pageIndex+1).padStart(2,"0")} // ${ship.toUpperCase()}`,W-X(10),Y(35.5),{size:39,weight:"800",family:"Orbitron",colour:"#F7FBFE",align:"right"});
+      sarahDrawText(ctx,`${assigned.length} CREW ASSIGNED`,W-X(10),Y(42.5),{size:25,weight:"700",family:"Orbitron",colour:"#AFC7D8",align:"right"});
+      sarahDrawText(ctx,"BIRTHDAY MISSION // 16 DECEMBER",W-X(10),Y(49.5),{size:20,weight:"600",family:"Orbitron",colour:"#688BA3",align:"right"});
+
+      sarahDrawText(ctx,"CREW POSITIONS OPTIMISED BY INTERSTELLAR DEPLOYMENT PLANNER",X(12.5),Y(48.8),{size:21,weight:"700",family:"Orbitron",colour:"#F2BC48"});
+      const title="SARAH'S MEGA MISSION";
+      const titleSize=sarahFitText(ctx,title,X(118),51,30,"800","Orbitron");
+      sarahDrawText(ctx,title,X(12.5),Y(56),{size:titleSize,weight:"800",family:"Orbitron",colour:"#F8FBFD"});
+
+      // Mission metadata strip.
+      ctx.fillStyle="#EDF3F6";ctx.fillRect(0,Y(58),W,Y(16));
+      const meta=[
+        {x:13,label:"MISSION DATE",value:"16 December"},
+        {x:63,label:"SHIPS",value:"Takanami + Havock"},
+        {x:132,label:"TOTAL CREW",value:String(totalCrew)},
+        {x:166,label:"CHOICES",value:locked?"CLOSED":"OPEN"}
+      ];
+      for(const item of meta){
+        sarahDrawText(ctx,item.label,X(item.x),Y(64.4),{size:18,weight:"700",family:"Orbitron",colour:"#718697"});
+        sarahDrawText(ctx,item.value,X(item.x),Y(70.2),{size:28,weight:"700",family:"Rajdhani",colour:item.label==="CHOICES"?(locked?"#9B3E4A":"#287F58"):"#172531"});
+      }
+
+      let y=Y(82);
+      sarahDrawText(ctx,`${ship.toUpperCase()} // CREW MANIFEST`,margin,y,{size:34,weight:"800",family:"Orbitron",colour:"#071727"});
+      sarahDrawText(ctx,"CURRENT OPTIMISED ASSIGNMENT",W-margin,y,{size:19,weight:"700",family:"Orbitron",colour:"#168CA0",align:"right"});
+      ctx.strokeStyle="#41D3EB";ctx.lineWidth=5;
+      ctx.beginPath();ctx.moveTo(margin,y+Y(3));ctx.lineTo(W-margin,y+Y(3));ctx.stroke();
+      y+=Y(8.5);
+
+      for(const group of TEAM_ORDER){
+        const palette=sarahPdfTeamPalette(group);
+        const roles=ROLES.filter(r=>r.group===group);
+        const headH=Y(7);
+        sarahFillRoundRect(ctx,margin,y,W-margin*2,headH,X(1.4),palette.fill);
+        sarahDrawText(ctx,TEAM_LABELS[group].toUpperCase(),margin+X(3.2),y+headH*.57,{size:23,weight:"800",family:"Orbitron",colour:palette.text,baseline:"middle"});
+        const groupAssigned=roles.filter(r=>sarahAssignmentForRole(ship,r.name)).length;
+        sarahDrawText(ctx,`${groupAssigned} / ${roles.length} ASSIGNED`,W-margin-X(3.2),y+headH*.57,{size:17,weight:"700",family:"Orbitron",colour:palette.text,align:"right",baseline:"middle"});
+        y+=Y(8.3);
+
+        for(const r of roles){
+          const a=sarahAssignmentForRole(ship,r.name);
+          const rowH=Y(8);
+          sarahFillRoundRect(ctx,margin,y,W-margin*2,rowH-Y(.7),X(.9),a?"#FFFFFF":"#F1F5F7","#D7E2E8",2);
+          ctx.fillStyle=palette.fill;ctx.fillRect(margin,y,X(1.25),rowH-Y(.7));
+          sarahDrawText(ctx,r.name,margin+X(5.2),y+(rowH-Y(.8))/2,{size:29,weight:"700",family:"Rajdhani",colour:a?"#172531":"#788692",baseline:"middle"});
+          sarahDrawText(ctx,a?.name||"Unassigned",W-margin-X(5.2),y+(rowH-Y(.8))/2,{size:30,weight:a?"700":"600",family:a?"Orbitron":"Rajdhani",colour:a?"#102334":"#82909A",align:"right",baseline:"middle"});
+          if(a?.forced){
+            sarahDrawText(ctx,"LOCKED OVERRIDE",W-margin-X(5.2),y+Y(7.2),{size:13,weight:"700",family:"Orbitron",colour:"#9D6FDC",align:"right"});
+          }
+          y+=Y(8.8);
+        }
+        y+=Y(1.7);
+      }
+
+      // Footer / system seal.
+      ctx.strokeStyle="#D7E1E8";ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(margin,H-Y(15));ctx.lineTo(W-margin,H-Y(15));ctx.stroke();
+      if(icon)ctx.drawImage(icon,margin,H-Y(13),X(8),X(8));
+      sarahDrawText(ctx,"INTERSTELLAR DEPLOYMENT PLANNER",margin+(icon?X(10):0),H-Y(8.8),{size:20,weight:"800",family:"Orbitron",colour:"#071727"});
+      sarahDrawText(ctx,"SYSTEM-GENERATED CREW MANIFEST",margin+(icon?X(10):0),H-Y(5.2),{size:16,weight:"700",family:"Orbitron",colour:"#728596"});
+      sarahDrawText(ctx,`GENERATED ${generated.toUpperCase()}`,W-margin,H-Y(8.8),{size:16,weight:"700",family:"Orbitron",colour:"#728596",align:"right"});
+      sarahDrawText(ctx,`PAGE ${pageIndex+1} / ${SHIPS.length}`,W-margin,H-Y(5.2),{size:16,weight:"700",family:"Orbitron",colour:"#728596",align:"right"});
+
+      const image=canvas.toDataURL("image/jpeg",.94);
+      if(pageIndex>0)pdf.addPage();
+      pdf.addImage(image,"JPEG",0,0,210,297,undefined,"FAST");
+    }
+
+    pdf.save("Sarahs-Mega-Mission_Crew-Assignments.pdf");
+    setMessage(message,"Crew PDF downloaded: one page for Takanami and one for Havock.","ok");
+  }catch(ex){
+    console.error("Sarah PDF generation failed",ex);
+    setMessage(message,`Could not generate PDF: ${ex?.message||ex}`,"error");
+  }finally{
+    button.disabled=false;
+    button.textContent=previous||"Export crew PDF";
+  }
+}
+
 function choicesChanged(existing,p){return Boolean(existing)&&(existing.ship!==p.ship||JSON.stringify(existing.prefs||[])!==JSON.stringify(p.prefs||[]));}
 function playerPayload(p,ownerUid,existing=null){
   const isNew=!existing,resetPriority=isNew||choicesChanged(existing,p);
@@ -425,6 +723,7 @@ function renderAdmin(){
 }
 function openAdminEdit(p=null){$("#adminEditForm").classList.remove("hidden");setMessage($("#adminEditMessage"),"");$("#adminEditTitle").textContent=p?"Edit person":"Add someone";$("#adminEditId").value=p?.id||"";$("#adminName").value=p?.name||"";$("#adminShip").value=p?.ship||"";$("#adminPref1").value=p?.prefs?.[0]||"";$("#adminPref2").value=p?.prefs?.[1]||"";$("#adminPref3").value=p?.prefs?.[2]||"";setChecked($("#adminDislikes"),p?.dislikes||[]);const o=p?getOverride(p.id):null;$("#adminForceRole").value=o?.role||"";$("#adminForceShip").value=o?.ship||"";syncFlexible("admin");syncForceControls();$("#adminEditForm").scrollIntoView({behavior:"smooth",block:"start"});}
 function closeAdminEdit(){$("#adminEditForm").classList.add("hidden");setMessage($("#adminEditMessage"),"");$("#adminEditForm").reset();setChecked($("#adminDislikes"),[]);syncFlexible("admin");syncForceControls();}
+$("#adminPdfBtn").addEventListener("click",generateSarahCrewPdf);
 $("#adminAddBtn").addEventListener("click",()=>{openAdminEdit(null);setMessage($("#adminMessage"),"Adding someone manually. Complete their choices below and press Save person.","ok");});$("#adminCancelEdit").addEventListener("click",closeAdminEdit);
 $("#adminEditForm").addEventListener("submit",async e=>{
   e.preventDefault();
