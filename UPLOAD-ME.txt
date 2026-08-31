@@ -1,1 +1,18 @@
-Replace index.html in the existing DJSmartyP/Crew-assignment- GitHub repo with this version. No Firebase or Firestore changes are needed.
+UPDATE INSTRUCTIONS
+
+1. Open DJSmartyP/Crew-assignment- on GitHub.
+2. Replace the existing index.html with the index.html in this folder.
+3. Commit the change to main.
+4. Wait about a minute for GitHub Pages to redeploy.
+5. Refresh https://djsmartyp.github.io/Crew-assignment-/
+
+No Firebase or Firestore rule changes are needed for this update.
+
+This version includes:
+- live whole-crew recalculation whenever anyone adds/changes choices
+- player-friendly wording
+- 16 December mission date
+- visible player rules
+- FILLED FOR NOW wording instead of implying roles are permanently claimed
+- improved organiser Add someone form and inline feedback
+- Close choices / Reopen choices wording

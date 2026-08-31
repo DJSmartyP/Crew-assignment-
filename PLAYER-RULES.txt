@@ -1,0 +1,22 @@
+SARAH'S MEGA MISSION CREW TRACKER
+Mission: 16 December
+
+HOW THE CREW SUGGESTION WORKS
+
+1. First come, first served
+If two people are otherwise equally suited to the same choice, the person who chose first gets priority.
+
+2. The crew list can change
+Assignments are only the best suggestion based on the choices received so far. When a new person adds their preferences, or somebody changes theirs, the whole crew suggestion is worked out again.
+
+3. We try to accommodate everybody
+The tracker tries 1st choices first, then 2nd, then 3rd, then flexible/no-preference options. It also tries to keep people away from roles they marked Really don't want.
+
+4. Nothing is permanently claimed while choices are coming in
+A station showing FILLED FOR NOW is not locked to that person. Suggested assignments may move until everyone has given their preferences.
+
+5. The tracker is there to help, not decide for you
+The suggested assignment is not something anyone HAS to follow. It is a tool to help build two balanced crews.
+
+6. Need help?
+If something looks wrong, you cannot edit your choices, or you need a change, contact Smarty or Sarah.
