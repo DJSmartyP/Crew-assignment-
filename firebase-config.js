@@ -1,14 +1,14 @@
-// Paste the Firebase web-app configuration from Firebase Console here.
-// Firebase web configuration is designed to be public. Do NOT put passwords here.
+// Firebase web configuration for the UFN Bridge Command Crew Allocator.
+// These web-app config values are intended to be used client-side.
 export const firebaseConfig = {
-  apiKey: "PASTE_API_KEY_HERE",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_STORAGE_BUCKET_HERE",
-  messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyCVgI21uHF5rlRvF49ye4AtIlFgzPlFRNQ",
+  authDomain: "crew-assigner-69451.firebaseapp.com",
+  projectId: "crew-assigner-69451",
+  storageBucket: "crew-assigner-69451.firebasestorage.app",
+  messagingSenderId: "595809862356",
+  appId: "1:595809862356:web:040ecfc7b20713a59ef141"
 };
 
-// Copy the UID of the single Firebase Authentication account you create for GM/admin.
-// This is not the password. Firestore Security Rules enforce admin rights.
-export const ADMIN_UID = "PASTE_ADMIN_UID_HERE";
+// We will replace this after creating the single Firebase admin account.
+// This is the Firebase Authentication UID, NOT the admin password.
+export const ADMIN_UID = "jCiO56C6SMd1DOoFCZb4AtpsvyF2";
