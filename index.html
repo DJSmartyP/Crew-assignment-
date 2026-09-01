@@ -644,10 +644,6 @@ async function generateSarahCrewPdf(){
 
           sarahDrawText(ctx,r.name,margin+X(5.2),y+(rowH-Y(.45))/2,{size:33,weight:"700",family:"Orbitron",colour:a?"#172531":"#788692",baseline:"middle"});
           sarahDrawText(ctx,a?.name||"Unassigned",W-margin-X(5.2),y+(rowH-Y(.45))/2,{size:35,weight:a?"700":"600",family:"Orbitron",colour:a?"#102334":"#82909A",align:"right",baseline:"middle"});
-
-          if(a?.forced){
-            sarahDrawText(ctx,"LOCKED OVERRIDE",W-margin-X(5.2),y+Y(7.2),{size:15,weight:"800",family:"Orbitron",colour:"#7A48AF",align:"right"});
-          }
           y+=Y(8.72);
         }
         y+=Y(1.15);
