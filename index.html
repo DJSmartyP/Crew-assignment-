@@ -115,7 +115,7 @@ header p{margin:10px 0 0;color:var(--muted);font-size:15px}.top-right{display:fl
           <div class="field"><label for="adminShip">Preferred ship</label><select id="adminShip"><option value="">No preference</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div>
           <div class="rank-grid"><div class="field"><label for="adminPref1">1st</label><select id="adminPref1"></select></div><div class="field"><label for="adminPref2">2nd</label><select id="adminPref2"></select></div><div class="field"><label for="adminPref3">3rd</label><select id="adminPref3"></select></div></div>
           <div class="label" style="margin:2px 0 6px">Really don't want</div><div id="adminDislikes" class="dislikes"></div>
-          <div class="force-box"><div class="force-box-title">Fixed assignment override</div><div class="force-grid"><div class="field" style="margin:0"><label for="adminForceRole">Force station</label><select id="adminForceRole"></select></div><div class="field" style="margin:0"><label for="adminForceShip">Force ship</label><select id="adminForceShip"><option value="">Either ship</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div></div><div class="force-help">Optional. If you fix a station, the crew planner will keep this person there and work everyone else around them. Choose <strong>Either ship</strong> to fix the role but let the planner choose which ship.</div></div>
+          <div class="force-box"><div class="force-box-title">Fixed assignment override</div><div class="force-grid"><div class="field" style="margin:0"><label for="adminForceRole">Force station</label><select id="adminForceRole"></select></div><div class="field" style="margin:0"><label for="adminForceShip">Force ship</label><select id="adminForceShip"><option value="">Either ship</option><option value="Takanami">Takanami</option><option value="Havock">Havock</option></select></div></div><div class="force-help">Optional. You can force a ship, a station, or both. If only a ship is forced, the crew planner will choose the best station on that ship and work everyone else around them.</div></div>
           <div class="actions"><button class="btn primary" type="submit">Save person</button><button id="adminCancelEdit" class="btn secondary" type="button">Cancel</button></div><div id="adminEditMessage" class="message admin-edit-message" aria-live="polite"></div>
         </form>
       </section>
@@ -235,9 +235,13 @@ function forceRoleOptions(){
   for(const team of TEAM_ORDER){out+=`<optgroup label="${esc(TEAM_LABELS[team])}">`+ROLES.filter(r=>r.group===team).map(r=>`<option value="${esc(r.name)}">${esc(r.name)}</option>`).join("")+`</optgroup>`;}
   return out;
 }
-function syncForceControls(){const role=$("#adminForceRole"),ship=$("#adminForceShip");if(!role||!ship)return;ship.disabled=!role.value;if(!role.value)ship.value="";}
-function getOverride(playerId){const o=overrides?.[playerId];return o&&ROLE_NAMES.includes(o.role)?{role:o.role,ship:SHIPS.includes(o.ship)?o.ship:""}:null;}
+function syncForceControls(){const role=$("#adminForceRole"),ship=$("#adminForceShip");if(!role||!ship)return;ship.disabled=false;}
+function getOverride(playerId){const o=overrides?.[playerId],role=ROLE_NAMES.includes(o?.role)?o.role:"",ship=SHIPS.includes(o?.ship)?o.ship:"";return role||ship?{role,ship}:null;}
 function overrideConflict(playerId,role,ship){
+  if(ship){
+    const fixedToShip=players.filter(p=>p.id!==playerId&&getOverride(p.id)?.ship===ship).length;
+    if(fixedToShip>=14)return `${ship} already has 14 people fixed to it.`;
+  }
   if(!role)return "";
   const all=[];
   for(const p of players){if(p.id===playerId)continue;const o=getOverride(p.id);if(o&&o.role===role)all.push(o);}
@@ -333,9 +337,9 @@ function desirability(q){if(q.kind==="rank")return 6-q.rank;if(q.kind==="flex")r
 function assignmentCost(person,slot){
   const q=quality(person,slot.role),shipMet=!person.ship||person.ship===slot.ship,shipPenalty=person.ship&&!shipMet?1:0;
   const hardBlock=31**9;
+  if(person.forcedRole&&slot.role!==person.forcedRole)return hardBlock+stableTie(person.id,slot.ship,slot.role);
+  if(person.forcedShip&&slot.ship!==person.forcedShip)return hardBlock+stableTie(person.id,slot.ship,slot.role);
   if(person.forcedRole){
-    if(slot.role!==person.forcedRole)return hardBlock+stableTie(person.id,slot.ship,slot.role);
-    if(person.forcedShip&&slot.ship!==person.forcedShip)return hardBlock+stableTie(person.id,slot.ship,slot.role);
     // The role is fixed; if either ship is allowed, use ship preference and the rest of the crew to decide which copy of that role fits best.
     return shipPenalty+stableTie(person.id,slot.ship,slot.role);
   }
@@ -348,7 +352,7 @@ function computeBoard(list){
   const scored=eligible.map(p=>{const o=getOverride(p.id);return {...p,_priorityOrder:orderMap.get(p.id)||0,forcedRole:o?.role||"",forcedShip:o?.ship||""};}),ss=slots();
   if(!scored.length)return{assignments:[],metrics:{first:0,second:0,third:0,flex:0,other:0,avoid:0,shipMet:0,shipPrefs:0,fixed:0},overflow:Math.max(0,list.length-MAX_PLAYERS)};
   const matrix=scored.map(person=>ss.map(slot=>assignmentCost(person,slot))),chosen=hungarian(matrix);
-  const assignments=scored.map((person,i)=>{const slot=ss[chosen[i]],q=quality(person,slot.role),forced=Boolean(person.forcedRole);return{playerId:person.id,name:person.name,ship:slot.ship,role:slot.role,group:slot.group,qualityKind:q.kind,rank:q.rank,qualityLabel:q.label,disliked:q.kind==="avoid",shipPreference:person.ship||"",shipMet:!person.ship||person.ship===slot.ship,priorityOrder:person._priorityOrder,forced,forcedRole:person.forcedRole||"",forcedShip:person.forcedShip||""};});
+  const assignments=scored.map((person,i)=>{const slot=ss[chosen[i]],q=quality(person,slot.role),forced=Boolean(person.forcedRole||person.forcedShip);return{playerId:person.id,name:person.name,ship:slot.ship,role:slot.role,group:slot.group,qualityKind:q.kind,rank:q.rank,qualityLabel:q.label,disliked:q.kind==="avoid",shipPreference:person.ship||"",shipMet:!person.ship||person.ship===slot.ship,priorityOrder:person._priorityOrder,forced,forcedRole:person.forcedRole||"",forcedShip:person.forcedShip||""};});
   return{assignments,metrics:{first:assignments.filter(a=>a.rank===1).length,second:assignments.filter(a=>a.rank===2).length,third:assignments.filter(a=>a.rank===3).length,flex:assignments.filter(a=>a.qualityKind==="flex").length,other:assignments.filter(a=>a.qualityKind==="other").length,avoid:assignments.filter(a=>a.disliked).length,shipMet:assignments.filter(a=>a.shipPreference&&a.shipMet).length,shipPrefs:assignments.filter(a=>a.shipPreference).length,fixed:assignments.filter(a=>a.forced).length},overflow:Math.max(0,list.length-MAX_PLAYERS)};
 }
 function renderState(){
@@ -737,7 +741,7 @@ function renderAdmin(){
   if(!currentUser||currentUser.isAnonymous)return;const m=currentBoard.metrics||{};$("#lockBtn").textContent=locked?"Reopen choices":"Close choices";
   $("#adminMetrics").innerHTML=`<div class="metric"><strong>${m.first||0}</strong> 1st</div><div class="metric"><strong>${m.second||0}</strong> 2nd</div><div class="metric"><strong>${m.third||0}</strong> 3rd</div><div class="metric"><strong>${m.flex||0}</strong> flexible</div><div class="metric"><strong>${m.other||0}</strong> other</div><div class="metric"><strong>${m.avoid||0}</strong> avoid</div><div class="metric"><strong>${m.shipMet||0}/${m.shipPrefs||0}</strong> ship prefs</div><div class="metric"><strong>${m.fixed||0}</strong> fixed</div>`;
   const box=$("#adminEntries");box.innerHTML="";if(!players.length){box.innerHTML='<div class="sub">No entries.</div>';return;}
-  [...players].sort(prioritySort).forEach((p,i)=>{const a=currentBoard.assignments.find(x=>x.playerId===p.id),o=getOverride(p.id),row=document.createElement("div");row.className="admin-row";row.innerHTML=`<div class="admin-row-top"><div><div class="admin-name">#${i+1} · ${esc(p.name)}</div><div class="admin-meta">Role choices: ${esc((p.prefs||[]).map(prefLabel).join(" → "))}<br>Ship: ${esc(p.ship||"No preference")}${p.dislikes.length?`<br>Really don't want: ${esc(p.dislikes.join(", "))}`:""}${o?`<br><span class="force-badge">Fixed: ${esc(o.ship?o.ship+" · ":"Either ship · ")}${esc(o.role)}</span>`:""}${a?`<br>Suggested now: ${esc(a.ship)} · ${esc(a.role)} (${esc(a.qualityLabel)})`:""}</div></div><div class="admin-actions"><button class="btn secondary tiny edit" type="button">Edit</button><button class="btn danger tiny del" type="button">Delete</button></div></div>`;row.querySelector(".edit").addEventListener("click",()=>openAdminEdit(p));row.querySelector(".del").addEventListener("click",()=>deleteAdmin(p));box.appendChild(row);});
+  [...players].sort(prioritySort).forEach((p,i)=>{const a=currentBoard.assignments.find(x=>x.playerId===p.id),o=getOverride(p.id),fixedLabel=o?[o.ship||"Either ship",o.role].filter(Boolean).join(" · "):"",row=document.createElement("div");row.className="admin-row";row.innerHTML=`<div class="admin-row-top"><div><div class="admin-name">#${i+1} · ${esc(p.name)}</div><div class="admin-meta">Role choices: ${esc((p.prefs||[]).map(prefLabel).join(" → "))}<br>Ship: ${esc(p.ship||"No preference")}${p.dislikes.length?`<br>Really don't want: ${esc(p.dislikes.join(", "))}`:""}${o?`<br><span class="force-badge">Fixed: ${esc(fixedLabel)}</span>`:""}${a?`<br>Suggested now: ${esc(a.ship)} · ${esc(a.role)} (${esc(a.qualityLabel)})`:""}</div></div><div class="admin-actions"><button class="btn secondary tiny edit" type="button">Edit</button><button class="btn danger tiny del" type="button">Delete</button></div></div>`;row.querySelector(".edit").addEventListener("click",()=>openAdminEdit(p));row.querySelector(".del").addEventListener("click",()=>deleteAdmin(p));box.appendChild(row);});
 }
 function openAdminEdit(p=null){$("#adminEditForm").classList.remove("hidden");setMessage($("#adminEditMessage"),"");$("#adminEditTitle").textContent=p?"Edit person":"Add someone";$("#adminEditId").value=p?.id||"";$("#adminName").value=p?.name||"";$("#adminShip").value=p?.ship||"";$("#adminPref1").value=p?.prefs?.[0]||"";$("#adminPref2").value=p?.prefs?.[1]||"";$("#adminPref3").value=p?.prefs?.[2]||"";setChecked($("#adminDislikes"),p?.dislikes||[]);const o=p?getOverride(p.id):null;$("#adminForceRole").value=o?.role||"";$("#adminForceShip").value=o?.ship||"";syncFlexible("admin");syncForceControls();$("#adminEditForm").scrollIntoView({behavior:"smooth",block:"start"});}
 function closeAdminEdit(){$("#adminEditForm").classList.add("hidden");setMessage($("#adminEditMessage"),"");$("#adminEditForm").reset();setChecked($("#adminDislikes"),[]);syncFlexible("admin");syncForceControls();}
@@ -747,15 +751,15 @@ $("#adminEditForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const editMsg=$("#adminEditMessage");setMessage(editMsg,"");
   if(!currentUser||currentUser.isAnonymous||currentUser.uid!==ADMIN_UID){setMessage(editMsg,"Your organiser sign-in has expired. Sign out and back in, then try again.","error");return;}
-  const id=$("#adminEditId").value,p={name:$("#adminName").value.trim(),ship:$("#adminShip").value,prefs:[$("#adminPref1").value,$("#adminPref2").value,$("#adminPref3").value],dislikes:checkedValues($("#adminDislikes"))},forcedRole=$("#adminForceRole").value,forcedShip=forcedRole?$("#adminForceShip").value:"",err=validateLocal(p,id);
+  const id=$("#adminEditId").value,p={name:$("#adminName").value.trim(),ship:$("#adminShip").value,prefs:[$("#adminPref1").value,$("#adminPref2").value,$("#adminPref3").value],dislikes:checkedValues($("#adminDislikes"))},forcedRole=$("#adminForceRole").value,forcedShip=$("#adminForceShip").value,err=validateLocal(p,id);
   if(err){setMessage(editMsg,err,"error");return;}
   const forceErr=overrideConflict(id,forcedRole,forcedShip);if(forceErr){setMessage(editMsg,forceErr,"error");return;}
   if(!id&&players.length>=MAX_PLAYERS){setMessage(editMsg,"All 28 people have already been added.","error");return;}
   try{
     const targetRef=id?doc(db,"players",id):doc(collection(db,"players")),targetId=id||targetRef.id,existing=id?players.find(x=>x.id===id):null;
-    const nextOverrides={...(overrides||{})};if(forcedRole)nextOverrides[targetId]={role:forcedRole,ship:forcedShip};else delete nextOverrides[targetId];
+    const nextOverrides={...(overrides||{})};if(forcedRole||forcedShip)nextOverrides[targetId]={role:forcedRole,ship:forcedShip};else delete nextOverrides[targetId];
     const batch=writeBatch(db);batch.set(targetRef,playerPayload(p,existing?.ownerUid||"ADMIN_MANAGED",existing));batch.set(doc(db,"config","app"),{overrides:nextOverrides,updatedAt:serverTimestamp()},{merge:true});await batch.commit();
-    const savedName=p.name;closeAdminEdit();setMessage($("#adminMessage"),forcedRole?`${savedName} saved with a fixed ${forcedShip?forcedShip+" ":""}${forcedRole} assignment.`:`${savedName} saved successfully.`,"ok");
+    const savedName=p.name;closeAdminEdit();setMessage($("#adminMessage"),forcedRole||forcedShip?`${savedName} saved with a fixed ${forcedShip||"either ship"}${forcedRole?" · "+forcedRole:""} assignment.`:`${savedName} saved successfully.`,"ok");
   }catch(ex){setMessage(editMsg,friendlyError(ex),"error");}
 });
 async function deleteAdmin(p){if(!confirm(`Delete ${p.name}'s entry?`))return;try{const nextOverrides={...(overrides||{})};delete nextOverrides[p.id];const batch=writeBatch(db);batch.delete(doc(db,"players",p.id));batch.set(doc(db,"config","app"),{overrides:nextOverrides,updatedAt:serverTimestamp()},{merge:true});await batch.commit();setMessage($("#adminMessage"),`${p.name} deleted.`,"ok");}catch(ex){setMessage($("#adminMessage"),friendlyError(ex),"error");}}
